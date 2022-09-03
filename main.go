@@ -23,7 +23,7 @@ func main() {
 
 	godotenv.Load()
 	port := os.Getenv("PORT")
-	port = "1323"
+	//port = "1323"
 	address := fmt.Sprintf("%s:%s", "0.0.0.0", port)
 	fmt.Println(address)
 	//run database
