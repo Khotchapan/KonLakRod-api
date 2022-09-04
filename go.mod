@@ -1,4 +1,4 @@
-module github.com/khotchapan/project-api
+module github.com/khotchapan/KonLakRod-api
 
 go 1.18
 
@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect

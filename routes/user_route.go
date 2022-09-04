@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/khotchapan/project-api/controllers" //add this
+	"github.com/khotchapan/KonLakRod-api/controllers" //add this
 	"github.com/labstack/echo/v4"
 )
 

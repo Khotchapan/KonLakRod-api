@@ -1,9 +1,9 @@
 
 package controllers
 import (
-    "github.com/khotchapan/project-api/configs"
-    "github.com/khotchapan/project-api/models"
-    "github.com/khotchapan/project-api/responses"
+    "github.com/khotchapan/KonLakRod-api/configs"
+    "github.com/khotchapan/KonLakRod-api/models"
+    "github.com/khotchapan/KonLakRod-api/responses"
     "net/http"
     "time"
   
