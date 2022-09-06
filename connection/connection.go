@@ -53,7 +53,7 @@ type Collection struct {
 
 func GetConnect(ctx context.Context, k string) *Connection {
 	log.Println("======================================================================================")
-	log.Println("ctx:",ctx.Value(k).(Connection))
+	log.Println("GetConnect:",ctx.Value(k).(Connection))
 	log.Println("======================================================================================")
 	data, err := base64.StdEncoding.DecodeString(k)
 	if err != nil {
@@ -72,7 +72,7 @@ func GetConnect(ctx context.Context, k string) *Connection {
 
 func GetCollection(ctx context.Context, k string) *Collection {
 	log.Println("======================================================================================")
-	log.Println("ctx:",ctx.Value(k).(Collection))
+	log.Println("GetCollection:",ctx.Value(k).(Collection))
 	log.Println("======================================================================================")
 	data, err := base64.StdEncoding.DecodeString(k)
 	if err != nil {

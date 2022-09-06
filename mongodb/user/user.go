@@ -13,7 +13,10 @@ const (
 type UsersInterface interface {
 	Create(i interface{}) error
 	Update(i interface{}) error
+	Delete(i interface{}) error
 	FindAllUsers(request *GetAllUsersForm) (*mongodb.Page, error)
+	FindOneUsers(id *primitive.ObjectID, i interface{}) error
+	FindOneByObjectID(oid *primitive.ObjectID, i interface{}) error
 }
 
 type Repo struct {
@@ -54,21 +57,34 @@ func (r *Repo) FindAllUsers(f *GetAllUsersForm) (*mongodb.Page, error) {
 		// }},
 	}
 
-	size := f.GetSize()
-	page := f.GetPage()
+	// size := f.GetSize()
+	// page := f.GetPage()
 
-	if size > 0 {
-		pipeline = append(pipeline, primitive.M{
-			"$skip": int64(size * (page - 1)),
-		})
-		pipeline = append(pipeline, primitive.M{
-			"$limit": int64(size),
-		})
-	}
+	// if size > 0 {
+	// 	pipeline = append(pipeline, primitive.M{
+	// 		"$skip": int64(size * (page - 1)),
+	// 	})
+	// 	pipeline = append(pipeline, primitive.M{
+	// 		"$limit": int64(size),
+	// 	})
+	// }
 	usersResponse := []*UsersResponse{}
 	response, err := r.Aggregate(pipeline, &usersResponse, &f.PageQuery)
 	if err != nil {
 		return nil, err
 	}
 	return response, err
+}
+func (r *Repo) FindOneUsers(id *primitive.ObjectID, i interface{}) error {
+	err := r.FindOneByPrimitiveM(primitive.M{
+		"deleted_at": primitive.M{
+			"$exists": false,
+		},
+		"_id": id,
+		//"user_id": userID,
+	}, i)
+	if err != nil {
+		return err
+	}
+	return nil
 }

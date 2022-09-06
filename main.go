@@ -3,23 +3,27 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-playground/validator"
 	"github.com/joho/godotenv"
+
 	//"github.com/khotchapan/KonLakRod-api/configs"
 	"github.com/khotchapan/KonLakRod-api/connection"
 	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
 	coreValidator "github.com/khotchapan/KonLakRod-api/internal/core/validator"
 	users "github.com/khotchapan/KonLakRod-api/mongodb/user"
+
 	//"github.com/khotchapan/KonLakRod-api/routes"
-	"github.com/khotchapan/KonLakRod-api/services/user"
-	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"time"
+
+	"github.com/khotchapan/KonLakRod-api/services/user"
+	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
@@ -42,23 +46,29 @@ func main() {
 	})
 	//user
 	users := user.NewHandler(user.NewService(app, collection))
-	usersGroup := api.Group("/user")
+	usersGroup := api.Group("/users")
 	usersGroup.GET("", users.GetAllUsers)
+	usersGroup.GET("/:id", users.GetOneUsers)
+	usersGroup.POST("", users.PostUsers)
+	usersGroup.PUT("", users.PutUsers)
+	usersGroup.DELETE("", users.DeleteUsers)
 	godotenv.Load()
 	port := os.Getenv("PORT")
 	port = "1323"
+	//========================================================
+
+	//========================================================
 	address := fmt.Sprintf("%s:%s", "0.0.0.0", port)
-	fmt.Println(address)
+	fmt.Println("address:", address)
 	//run database
 	//configs.ConnectDB()
 	//routes // test zone
 	//routes.UserRoute(e) //add this
 	e.Start(address)
-	
 
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.1})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.2})
 }
 
 func initEcho() *echo.Echo {
@@ -95,5 +105,5 @@ func newMongoDB() (*mongo.Database, context.Context) {
 	}
 	fmt.Println("Connected to MongoDB")
 	//return client
-	return client.Database("project-api"), ctx
+	return client.Database("konlakrod"), ctx
 }

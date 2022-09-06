@@ -252,6 +252,36 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 		size = form[0].GetSize()
 		page = form[0].GetPage()
 	}
+	pipelineCount := pipeline
+	//=====================Count=========================
+	//###################Channels###################
+	// ch := make(chan []*CountDocument) // สร้างท่อ Channel เอาไว้ส่งข้อมูล
+	// go r.countDocumentByAggregate(pipeline, ch, ctx)
+	// countDocument := <-ch // ค่าจากท่อ Channel จะออกตรงนี้
+	// log.Println("countDocument:",countDocument[0].Count)
+	//#########################################
+	pipelineCount = append(pipelineCount, primitive.M{
+		"$count": "count",
+	})
+	cursorCount, err := r.Collection.Aggregate(
+		ctx,
+		pipelineCount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	countDocument := []*CountDocument{}
+	if err = cursorCount.All(ctx, &countDocument); err != nil {
+		return nil, err
+	}
+	//===================================================
+	//###################################################
+	pipeline = append(pipeline, primitive.M{
+		"$skip": int64(size * (page - 1)),
+	})
+	pipeline = append(pipeline, primitive.M{
+		"$limit": int64(size),
+	})
 	cursor, err := r.Collection.Aggregate(
 		ctx,
 		pipeline,
@@ -262,28 +292,7 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 	if err = cursor.All(ctx, i); err != nil {
 		return nil, err
 	}
-	//=====================Count=========================
-	//###################Channels###################
-	// ch := make(chan []*CountDocument) // สร้างท่อ Channel เอาไว้ส่งข้อมูล
-	// go r.countDocumentByAggregate(pipeline, ch, ctx)
-	// countDocument := <-ch // ค่าจากท่อ Channel จะออกตรงนี้
-	// log.Println("countDocument:",countDocument[0].Count)
-	//#########################################
-	pipeline = append(pipeline, primitive.M{
-		"$count": "count",
-	})
-	cursorCount, err := r.Collection.Aggregate(
-		ctx,
-		pipeline,
-	)
-	if err != nil {
-		return nil, err
-	}
-	countDocument := []*CountDocument{}
-	if err = cursorCount.All(ctx, &countDocument); err != nil {
-		return nil, err
-	}
-	//===================================================
+	//###################################################
 	var p Page
 	if len(countDocument) > 0 {
 		count := countDocument[0].Count
