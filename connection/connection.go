@@ -3,10 +3,12 @@ package connection
 import (
 	"context"
 	"encoding/base64"
+	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
 	"github.com/khotchapan/KonLakRod-api/mongodb/user"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 )
+
 const (
 	ConnectionInit = "S29uTGFrUm9kLWFwaS1jb25uZWN0"
 	CollectionInit = "S29uTGFrUm9kLWNvbm5lY3QtY29sbGVjdGlvbg=="
@@ -23,7 +25,7 @@ type Connection struct {
 	// JWT             *jwt.JWT
 	// Firebase        *firebases.FirebaseModel
 	// Tokbox          *tokbox.Tokbox
-	// GCS             googleCloud.IGCS
+	GCS googleCloud.IGCS
 }
 
 type Collection struct {
@@ -53,15 +55,15 @@ type Collection struct {
 
 func GetConnect(ctx context.Context, k string) *Connection {
 	log.Println("======================================================================================")
-	log.Println("GetConnect:",ctx.Value(k).(Connection))
+	log.Println("GetConnect:", ctx.Value(k).(Connection))
 	log.Println("======================================================================================")
 	data, err := base64.StdEncoding.DecodeString(k)
 	if err != nil {
 		log.Fatal("error:", err)
 	}
-	log.Println("data:", string(data))
-	log.Println("ctx:", ctx.Value(k))
-	
+	log.Println("GetConnect data:", string(data))
+	log.Println("GetConnect ctx:", ctx.Value(k))
+
 	if v, ok := ctx.Value(k).(Connection); ok {
 		return &v
 	}
@@ -72,14 +74,14 @@ func GetConnect(ctx context.Context, k string) *Connection {
 
 func GetCollection(ctx context.Context, k string) *Collection {
 	log.Println("======================================================================================")
-	log.Println("GetCollection:",ctx.Value(k).(Collection))
+	log.Println("GetCollection:", ctx.Value(k).(Collection))
 	log.Println("======================================================================================")
 	data, err := base64.StdEncoding.DecodeString(k)
 	if err != nil {
 		log.Fatal("error:", err)
 	}
-	log.Println("data:", string(data))
-	log.Println("ctx:", ctx.Value(k))
+	log.Println("GetCollection data:", string(data))
+	log.Println("GetCollection ctx:", ctx.Value(k))
 
 	if v, ok := ctx.Value(k).(Collection); ok {
 		return &v

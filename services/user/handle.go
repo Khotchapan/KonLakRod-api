@@ -85,3 +85,33 @@ func (h *Handler) DeleteUsers(c echo.Context) error {
 	response := &mongodb.Response{}
 	return c.JSON(http.StatusOK, response.SuccessfulOK())
 }
+
+func (h *Handler) UploadFile(c echo.Context) error {
+	var req UploadForm
+	file, _ := c.FormFile("file")
+	req.File = file
+	res, err := h.service.UploadFile(c, req)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"link": res,
+	})
+	
+}
+
+func (h *Handler) GetFile(c echo.Context) error {
+	// var req UploadForm
+	// file, _ := c.FormFile("file")
+	// req.File = file
+	response, err := h.service.FindAllFile(c)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	// return c.JSON(http.StatusOK, map[string]interface{}{
+	// 	"link": res,
+	// })
+	return c.JSON(http.StatusOK, response)
+}

@@ -20,6 +20,7 @@ import (
 	"path"
 	"time"
 
+	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
 	"github.com/khotchapan/KonLakRod-api/services/user"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -30,10 +31,12 @@ func main() {
 	var (
 		e           = initEcho()
 		dbMonggo, _ = newMongoDB()
+		gcs         = googleCloud.NewGoogleCloudStorage(dbMonggo)
 	)
 	app := context.WithValue(context.Background(), connection.ConnectionInit,
 		connection.Connection{
 			Monggo: dbMonggo,
+			GCS:    gcs,
 		})
 	collection := context.WithValue(context.Background(), connection.CollectionInit,
 		connection.Collection{
@@ -52,6 +55,8 @@ func main() {
 	usersGroup.POST("", users.PostUsers)
 	usersGroup.PUT("", users.PutUsers)
 	usersGroup.DELETE("", users.DeleteUsers)
+	usersGroup.POST("/upload", users.UploadFile)
+	usersGroup.GET("/get/upload", users.GetFile)
 	godotenv.Load()
 	port := os.Getenv("PORT")
 	port = "1323"
@@ -68,7 +73,7 @@ func main() {
 
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.2})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.3})
 }
 
 func initEcho() *echo.Echo {

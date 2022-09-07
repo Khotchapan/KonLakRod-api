@@ -1,6 +1,8 @@
 package user
 
 import (
+	"mime/multipart"
+
 	"github.com/khotchapan/KonLakRod-api/mongodb/user"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -68,4 +70,10 @@ func (f *UpdateUsersForm) fill(data *user.Users) *user.Users {
 
 type DeleteUsersForm struct {
 	ID *primitive.ObjectID `json:"id" validate:"required"`
+}
+
+type UploadForm struct {
+	Path string                `form:"path"`
+	Mime string                `form:"mime"`
+	File *multipart.FileHeader `form:"file"`
 }
