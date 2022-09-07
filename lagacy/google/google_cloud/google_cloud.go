@@ -8,7 +8,6 @@ import (
 	"log"
 	"mime/multipart"
 	"time"
-
 	"cloud.google.com/go/firestore"
 	"cloud.google.com/go/storage"
 	firebase "firebase.google.com/go"
@@ -24,7 +23,8 @@ type IGCS interface {
 	GetBucketName() string
 	UploadFilePrivate(file multipart.File, path string) (string, error)
 	SignedURL(object string) (string, error)
-	FindAllFile() ([]*Book, error)
+	FindAllBooks() ([]*Book, error)
+	FindOneBooks(id *string) ([]*Book, error)
 }
 
 type GoogleCloudStorage struct {
@@ -37,17 +37,10 @@ type GoogleCloudStorage struct {
 }
 
 func NewGoogleCloudStorage(db *mongo.Database) IGCS {
-	//jDate, _ := base64.StdEncoding.DecodeString(data.File)
-	//opt := option.WithCredentialsJSON(jDate)
-	//opt := option.WithCredentialsFile("konlakrod-cluod-firestore-firebase-adminsdk-1onip-f1dc189548.json")
-	// client, err := storage.NewClient(context.Background(), opt)
-	// if err != nil {
-	// 	log.Fatalf("cannot Connect to firebase :%v", err)
-	// }
-	opt := option.WithCredentialsFile("firebase_secret_key.json")
+	opt := option.WithCredentialsFile("internal/env/firebase_secret_key.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		return nil //, fmt.Errorf("error initializing app: %v", err)
+		return nil
 	}
 	client, err := app.Firestore(context.Background())
 	if err != nil {
@@ -56,9 +49,6 @@ func NewGoogleCloudStorage(db *mongo.Database) IGCS {
 
 	return &GoogleCloudStorage{
 		Client: client,
-		// projectID:  viper.GetString("gcs.projectID"),
-		// bucketName: viper.GetString("gcs.defaultBucket"),
-		// basePath:   viper.GetString("gcs.basePath"),
 	}
 }
 
@@ -123,9 +113,8 @@ func (g *GoogleCloudStorage) SignedURL(object string) (string, error) {
 	})
 }
 
-func (g *GoogleCloudStorage) FindAllFile() ([]*Book, error) {
+func (g *GoogleCloudStorage) FindAllBooks() ([]*Book, error) {
 	BooksData := []*Book{}
-
 	iter := g.Client.Collection("books").Documents(context.Background())
 	for {
 		BookData := &Book{}
@@ -134,10 +123,26 @@ func (g *GoogleCloudStorage) FindAllFile() ([]*Book, error) {
 			break
 		}
 		if err != nil {
-
 			return nil, errors.New("Something wrong, please try again.")
 		}
+		mapstructure.Decode(doc.Data(), &BookData)
+		BooksData = append(BooksData, BookData)
+	}
+	return BooksData, nil
+}
 
+func (g *GoogleCloudStorage) FindOneBooks(id *string) ([]*Book, error) {
+	BooksData := []*Book{}
+	iter := g.Client.Collection("books").Where("name", "==", id).Documents(context.Background())
+	for {
+		BookData := &Book{}
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
 		mapstructure.Decode(doc.Data(), &BookData)
 		BooksData = append(BooksData, BookData)
 	}

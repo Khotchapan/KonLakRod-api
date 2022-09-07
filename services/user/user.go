@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/khotchapan/KonLakRod-api/connection"
-	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
 	"github.com/khotchapan/KonLakRod-api/mongodb"
 	"github.com/khotchapan/KonLakRod-api/mongodb/user"
 	"github.com/labstack/echo/v4"
@@ -18,7 +17,6 @@ type UserInterface interface {
 	UpdateUsers(c echo.Context, request *UpdateUsersForm) error
 	DeleteUsers(c echo.Context, request *DeleteUsersForm) error
 	UploadFile(c echo.Context, req UploadForm) (string, error)
-	FindAllFile(c echo.Context) ([]*googleCloud.Book, error)
 }
 
 type Service struct {
@@ -102,15 +100,4 @@ func (s *Service) UploadFile(c echo.Context, req UploadForm) (string, error) {
 
 	obj, _ := s.con.GCS.UploadFilePrivate(src, path)
 	return s.con.GCS.SignedURL(obj)
-}
-
-func (s *Service) FindAllFile(c echo.Context) ([]*googleCloud.Book, error) {
-	//response := []*googleCloud.Book{}
-
-	data, err := s.con.GCS.FindAllFile()
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
 }

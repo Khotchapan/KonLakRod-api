@@ -33,6 +33,7 @@ func (h *Handler) GetAllUsers(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, response)
 }
+
 func (h *Handler) GetOneUsers(c echo.Context) error {
 	request := &GetOneUsersForm{}
 	cc := c.(*context.CustomContext)
@@ -45,6 +46,7 @@ func (h *Handler) GetOneUsers(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, response)
 }
+
 func (h *Handler) PostUsers(c echo.Context) error {
 	request := &CreateUsersForm{}
 	cc := c.(*context.CustomContext)
@@ -99,19 +101,4 @@ func (h *Handler) UploadFile(c echo.Context) error {
 		"link": res,
 	})
 	
-}
-
-func (h *Handler) GetFile(c echo.Context) error {
-	// var req UploadForm
-	// file, _ := c.FormFile("file")
-	// req.File = file
-	response, err := h.service.FindAllFile(c)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	// return c.JSON(http.StatusOK, map[string]interface{}{
-	// 	"link": res,
-	// })
-	return c.JSON(http.StatusOK, response)
 }

@@ -3,28 +3,25 @@ package main
 import (
 	"context"
 	"fmt"
-
 	"github.com/go-playground/validator"
 	"github.com/joho/godotenv"
-
+	//"github.com/khotchapan/KonLakRod-api/routes"
 	//"github.com/khotchapan/KonLakRod-api/configs"
 	"github.com/khotchapan/KonLakRod-api/connection"
 	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
 	coreValidator "github.com/khotchapan/KonLakRod-api/internal/core/validator"
+	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
 	users "github.com/khotchapan/KonLakRod-api/mongodb/user"
-
-	//"github.com/khotchapan/KonLakRod-api/routes"
+	"github.com/khotchapan/KonLakRod-api/services/test"
+	"github.com/khotchapan/KonLakRod-api/services/user"
+	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"time"
-
-	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
-	"github.com/khotchapan/KonLakRod-api/services/user"
-	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
@@ -47,6 +44,7 @@ func main() {
 	api.GET("", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
+
 	//user
 	users := user.NewHandler(user.NewService(app, collection))
 	usersGroup := api.Group("/users")
@@ -56,7 +54,12 @@ func main() {
 	usersGroup.PUT("", users.PutUsers)
 	usersGroup.DELETE("", users.DeleteUsers)
 	usersGroup.POST("/upload", users.UploadFile)
-	usersGroup.GET("/get/upload", users.GetFile)
+
+	// test zone
+	testService := test.NewHandler(test.NewService(app, collection))
+	testGroup := api.Group("/tests")
+	testGroup.GET("/google-cloud/books", testService.GetFile)
+	testGroup.GET("/google-cloud/books/:id", testService.GetOneGoogleCloudBooks)
 	godotenv.Load()
 	port := os.Getenv("PORT")
 	port = "1323"
@@ -73,7 +76,7 @@ func main() {
 
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.3})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.4})
 }
 
 func initEcho() *echo.Echo {
