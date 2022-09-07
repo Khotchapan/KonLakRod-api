@@ -7,10 +7,14 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
+	"strings"
 	"time"
+
 	"cloud.google.com/go/firestore"
 	"cloud.google.com/go/storage"
 	firebase "firebase.google.com/go"
+
+	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,8 +27,9 @@ type IGCS interface {
 	GetBucketName() string
 	UploadFilePrivate(file multipart.File, path string) (string, error)
 	SignedURL(object string) (string, error)
-	FindAllBooks() ([]*Book, error)
-	FindOneBooks(id *string) ([]*Book, error)
+	FindAllBooks() ([]*Books, error)
+	FindOneBooks(id *string) ([]*Books, error)
+	CreateBooks(i *Books) error
 }
 
 type GoogleCloudStorage struct {
@@ -113,11 +118,11 @@ func (g *GoogleCloudStorage) SignedURL(object string) (string, error) {
 	})
 }
 
-func (g *GoogleCloudStorage) FindAllBooks() ([]*Book, error) {
-	BooksData := []*Book{}
+func (g *GoogleCloudStorage) FindAllBooks() ([]*Books, error) {
+	BooksData := []*Books{}
 	iter := g.Client.Collection("books").Documents(context.Background())
 	for {
-		BookData := &Book{}
+		BookData := &Books{}
 		doc, err := iter.Next()
 		if err == iterator.Done {
 			break
@@ -131,11 +136,11 @@ func (g *GoogleCloudStorage) FindAllBooks() ([]*Book, error) {
 	return BooksData, nil
 }
 
-func (g *GoogleCloudStorage) FindOneBooks(id *string) ([]*Book, error) {
-	BooksData := []*Book{}
-	iter := g.Client.Collection("books").Where("name", "==", id).Documents(context.Background())
+func (g *GoogleCloudStorage) FindOneBooks(id *string) ([]*Books, error) {
+	BooksData := []*Books{}
+	iter := g.Client.Collection("books").Where("id", "==", id).Documents(context.Background())
 	for {
-		BookData := &Book{}
+		BookData := &Books{}
 		doc, err := iter.Next()
 		if err == iterator.Done {
 			break
@@ -147,4 +152,32 @@ func (g *GoogleCloudStorage) FindOneBooks(id *string) ([]*Book, error) {
 		BooksData = append(BooksData, BookData)
 	}
 	return BooksData, nil
+}
+func (g *GoogleCloudStorage) CreateBooks(i *Books) error {
+	// iter := g.Client.Collection("books").Where("id", "==", id).Documents(context.Background())
+	// for {
+	// 	BookData := &Books{}
+	// 	doc, err := iter.Next()
+	// 	if err == iterator.Done {
+	// 		break
+	// 	}
+	// 	if err != nil {
+	// 		log.Fatalf("Failed to iterate: %v", err)
+	// 	}
+	// 	mapstructure.Decode(doc.Data(), &BookData)
+	// 	BooksData = append(BooksData, BookData)
+	// }
+	// return BooksData, nil
+	uid := uuid.New()
+	log.Println("uid:", uid)
+	splitID := strings.Split(uid.String(), "-")
+	log.Println("splitID:", splitID)
+	id := splitID[0] + splitID[1] + splitID[2] + splitID[3] + splitID[4]
+	log.Println("id:", id)
+	i.ID = id
+	_, _, err := g.Client.Collection("books").Add(context.Background(), i)
+	if err != nil {
+		log.Printf("An error has occurred: %s", err)
+	}
+	return nil
 }

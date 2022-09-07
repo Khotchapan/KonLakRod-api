@@ -47,6 +47,7 @@ func (s *Service) FindOneUsers(c echo.Context, request *GetOneUsersForm) (*user.
 	}
 	return response, nil
 }
+
 func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
 	us := &user.Users{}
 	//data := []*user.Users{}
@@ -62,9 +63,9 @@ func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
+
 func (s *Service) UpdateUsers(c echo.Context, request *UpdateUsersForm) error {
 	us := &user.Users{}
 	err := s.collection.Users.FindOneByObjectID(request.ID, us)

@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/khotchapan/KonLakRod-api/internal/core/context"
+	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
+	"github.com/khotchapan/KonLakRod-api/mongodb"
 	"github.com/labstack/echo/v4"
 )
 
@@ -32,7 +34,7 @@ func (h *Handler) GetFile(c echo.Context) error {
 }
 
 func (h *Handler) GetOneGoogleCloudBooks(c echo.Context) error {
-	request := &GetOneGoogleCloudForm{}
+	request := &GetOneGoogleCloudBooksForm{}
 	cc := c.(*context.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -42,4 +44,19 @@ func (h *Handler) GetOneGoogleCloudBooks(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, response)
+}
+func (h *Handler) PostGoogleCloudBooks(c echo.Context) error {
+	request := &googleCloud.CreateBooksForm{}
+	cc := c.(*context.CustomContext)
+
+	if err := cc.BindAndValidate(request); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	err := h.service.CreateBooks(c, request)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	response := &mongodb.Response{}
+	return c.JSON(http.StatusOK, response.SuccessfulCreated())
 }

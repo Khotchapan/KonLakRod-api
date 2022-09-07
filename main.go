@@ -60,6 +60,7 @@ func main() {
 	testGroup := api.Group("/tests")
 	testGroup.GET("/google-cloud/books", testService.GetFile)
 	testGroup.GET("/google-cloud/books/:id", testService.GetOneGoogleCloudBooks)
+	testGroup.POST("/google-cloud/books", testService.PostGoogleCloudBooks)
 	godotenv.Load()
 	port := os.Getenv("PORT")
 	port = "1323"
@@ -76,7 +77,7 @@ func main() {
 
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.4})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.6})
 }
 
 func initEcho() *echo.Echo {
