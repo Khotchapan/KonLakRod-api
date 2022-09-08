@@ -45,6 +45,7 @@ func (h *Handler) GetOneGoogleCloudBooks(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, response)
 }
+
 func (h *Handler) PostGoogleCloudBooks(c echo.Context) error {
 	request := &googleCloud.CreateBooksForm{}
 	cc := c.(*context.CustomContext)
@@ -59,4 +60,32 @@ func (h *Handler) PostGoogleCloudBooks(c echo.Context) error {
 	}
 	response := &mongodb.Response{}
 	return c.JSON(http.StatusOK, response.SuccessfulCreated())
+}
+
+func (h *Handler) PutBooks(c echo.Context) error {
+	request := &googleCloud.UpdateBooksForm{}
+	cc := c.(*context.CustomContext)
+	if err := cc.BindAndValidate(request); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	err := h.service.UpdateBooks(c, request)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	response := &mongodb.Response{}
+	return c.JSON(http.StatusOK, response.SuccessfulOK())
+}
+
+func (h *Handler) DeleteBooks(c echo.Context) error {
+	request := &googleCloud.DeleteUsersForm{}
+	cc := c.(*context.CustomContext)
+	if err := cc.BindAndValidate(request); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	err := h.service.DeleteBooks(c, request)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	response := &mongodb.Response{}
+	return c.JSON(http.StatusOK, response.SuccessfulOK())
 }

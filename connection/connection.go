@@ -2,11 +2,11 @@ package connection
 
 import (
 	"context"
-	"encoding/base64"
+	"log"
+
 	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
 	"github.com/khotchapan/KonLakRod-api/mongodb/user"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 )
 
 const (
@@ -54,16 +54,17 @@ type Collection struct {
 }
 
 func GetConnect(ctx context.Context, k string) *Connection {
-	log.Println("======================================================================================")
-	log.Println("GetConnect:", ctx.Value(k).(Connection))
-	log.Println("======================================================================================")
-	data, err := base64.StdEncoding.DecodeString(k)
-	if err != nil {
-		log.Fatal("error:", err)
-	}
-	log.Println("GetConnect data:", string(data))
-	log.Println("GetConnect ctx:", ctx.Value(k))
+	// log.Println("======================================================================================")
+	// log.Println("GetConnect:", ctx.Value(k).(Connection))
+	// log.Println("======================================================================================")
+	//data, err := base64.StdEncoding.DecodeString(k)
+	// if err != nil {
+	// 	log.Fatal("error:", err)
+	// }
 
+	// log.Println("GetConnect data:", string(data))
+	// log.Println("GetConnect ctx:", ctx.Value(k))
+	// log.Printf("CONTEXT %+v", ctx.Value(k))
 	if v, ok := ctx.Value(k).(Connection); ok {
 		return &v
 	}
@@ -73,15 +74,15 @@ func GetConnect(ctx context.Context, k string) *Connection {
 }
 
 func GetCollection(ctx context.Context, k string) *Collection {
-	log.Println("======================================================================================")
-	log.Println("GetCollection:", ctx.Value(k).(Collection))
-	log.Println("======================================================================================")
-	data, err := base64.StdEncoding.DecodeString(k)
-	if err != nil {
-		log.Fatal("error:", err)
-	}
-	log.Println("GetCollection data:", string(data))
-	log.Println("GetCollection ctx:", ctx.Value(k))
+	// log.Println("======================================================================================")
+	// log.Println("GetCollection:", ctx.Value(k).(Collection))
+	// log.Println("======================================================================================")
+	//data, err := base64.StdEncoding.DecodeString(k)
+	// if err != nil {
+	// 	log.Fatal("error:", err)
+	// }
+	// log.Println("GetCollection data:", string(data))
+	// log.Println("GetCollection ctx:", ctx.Value(k))
 
 	if v, ok := ctx.Value(k).(Collection); ok {
 		return &v

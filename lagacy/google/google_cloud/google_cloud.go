@@ -30,6 +30,8 @@ type IGCS interface {
 	FindAllBooks() ([]*Books, error)
 	FindOneBooks(id *string) ([]*Books, error)
 	CreateBooks(i *Books) error
+	UpdateBooks(i *Books) error
+	DeleteBooks(request *DeleteUsersForm) error
 }
 
 type GoogleCloudStorage struct {
@@ -128,7 +130,7 @@ func (g *GoogleCloudStorage) FindAllBooks() ([]*Books, error) {
 			break
 		}
 		if err != nil {
-			return nil, errors.New("Something wrong, please try again.")
+			return nil, errors.New("something wrong, please try again")
 		}
 		mapstructure.Decode(doc.Data(), &BookData)
 		BooksData = append(BooksData, BookData)
@@ -154,20 +156,6 @@ func (g *GoogleCloudStorage) FindOneBooks(id *string) ([]*Books, error) {
 	return BooksData, nil
 }
 func (g *GoogleCloudStorage) CreateBooks(i *Books) error {
-	// iter := g.Client.Collection("books").Where("id", "==", id).Documents(context.Background())
-	// for {
-	// 	BookData := &Books{}
-	// 	doc, err := iter.Next()
-	// 	if err == iterator.Done {
-	// 		break
-	// 	}
-	// 	if err != nil {
-	// 		log.Fatalf("Failed to iterate: %v", err)
-	// 	}
-	// 	mapstructure.Decode(doc.Data(), &BookData)
-	// 	BooksData = append(BooksData, BookData)
-	// }
-	// return BooksData, nil
 	uid := uuid.New()
 	log.Println("uid:", uid)
 	splitID := strings.Split(uid.String(), "-")
@@ -180,4 +168,51 @@ func (g *GoogleCloudStorage) CreateBooks(i *Books) error {
 		log.Printf("An error has occurred: %s", err)
 	}
 	return nil
+}
+
+func (g *GoogleCloudStorage) UpdateBooks(i *Books) error {
+	var docID string
+
+	iter := g.Client.Collection("books").Where("id", "==", i.ID).Documents(context.Background())
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
+		docID = doc.Ref.ID
+		log.Println("docID:",docID)
+	}
+
+	_, err := g.Client.Collection("books").Doc(docID).Set(context.Background(), i)
+	if err != nil {
+		log.Printf("An error has occurred: %s", err)
+	}
+	return nil
+}
+
+func (g *GoogleCloudStorage) DeleteBooks(request *DeleteUsersForm) error {
+	var docID string
+
+	iter := g.Client.Collection("books").Where("id", "==", request.ID).Documents(context.Background())
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
+		docID = doc.Ref.ID
+		log.Println("docID:",docID)
+	}
+
+	_, err := g.Client.Collection("books").Doc(docID).Delete(context.Background())
+	if err != nil {
+		log.Printf("An error has occurred: %s", err)
+	}
+	return nil
+	
 }

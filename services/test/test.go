@@ -11,6 +11,8 @@ type TestInterface interface {
 	FindAllBooks(c echo.Context) ([]*googleCloud.Books, error)
 	FindOneBooks(c echo.Context, request *GetOneGoogleCloudBooksForm) ([]*googleCloud.Books, error)
 	CreateBooks(c echo.Context, request *googleCloud.CreateBooksForm) error
+	UpdateBooks(c echo.Context, request *googleCloud.UpdateBooksForm) error
+	DeleteBooks(c echo.Context, request *googleCloud.DeleteUsersForm) error
 }
 
 type Service struct {
@@ -45,21 +47,26 @@ func (s *Service) FindOneBooks(c echo.Context, request *GetOneGoogleCloudBooksFo
 
 func (s *Service) CreateBooks(c echo.Context, request *googleCloud.CreateBooksForm) error {
 	books := &googleCloud.Books{}
-	//data := []*user.Users{}
-	// err := s.collection.Users.Create(request, &data)
-	// if err != nil {
-	// 	return err
-	// }
 	b := request.Fill(books)
-	// if len(data) > 0 {
-	// 	dm.PharmacyCode = data[0].PharmacyCode
-	// }
-
-	// err := s.collection.Users.Create(b)
-	// if err != nil {
-	// 	return err
-	// }
 	err := s.con.GCS.CreateBooks(b)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Service) UpdateBooks(c echo.Context, request *googleCloud.UpdateBooksForm) error {
+	books := &googleCloud.Books{}
+	b := request.Fill(books)
+	err := s.con.GCS.UpdateBooks(b)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Service) DeleteBooks(c echo.Context, request *googleCloud.DeleteUsersForm) error {
+	err := s.con.GCS.DeleteBooks(request)
 	if err != nil {
 		return err
 	}
