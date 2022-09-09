@@ -1,5 +1,12 @@
 package googleCloud
 
+import "mime/multipart"
+
+// string mapping
+const (
+	Bucket = "konlakrod-cluod-firestore.appspot.com"
+)
+
 type Books struct {
 	ID     string `json:"id" firestore:"id"`
 	Name   string `json:"name" firestore:"name"`
@@ -43,4 +50,13 @@ func (f *UpdateBooksForm) Fill(data *Books) *Books {
 
 type DeleteUsersForm struct {
 	ID *string `json:"id" validate:"required"`
+}
+type UploadForm struct {
+	Path string                `form:"path"`
+	Mime string                `form:"mime"`
+	File *multipart.FileHeader `form:"file"`
+}
+type ImageStructure struct {
+	ImageName string `json:"imageName" firestore:"imageName"`
+	URL       string `json:"url" firestore:"url"`
 }

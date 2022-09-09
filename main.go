@@ -54,6 +54,7 @@ func main() {
 	usersGroup.PUT("", users.PutUsers)
 	usersGroup.DELETE("", users.DeleteUsers)
 	usersGroup.POST("/upload", users.UploadFile)
+	usersGroup.POST("image/upload", users.UploadFileUsers)
 
 	// test zone
 	testService := test.NewHandler(test.NewService(app, collection))
@@ -63,6 +64,7 @@ func main() {
 	testGroup.POST("/google-cloud/books", testService.PostGoogleCloudBooks)
 	testGroup.PUT("/google-cloud/books", testService.PutBooks)
 	testGroup.DELETE("/google-cloud/books", testService.DeleteBooks)
+	testGroup.POST("/google-cloud/image/upload", testService.UploadImage)
 	godotenv.Load()
 	port := os.Getenv("PORT")
 	port = "1323"
@@ -79,7 +81,7 @@ func main() {
 
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.7})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 1.8})
 }
 
 func initEcho() *echo.Echo {

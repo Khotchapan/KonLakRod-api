@@ -13,6 +13,7 @@ type TestInterface interface {
 	CreateBooks(c echo.Context, request *googleCloud.CreateBooksForm) error
 	UpdateBooks(c echo.Context, request *googleCloud.UpdateBooksForm) error
 	DeleteBooks(c echo.Context, request *googleCloud.DeleteUsersForm) error
+	UploadImage(c echo.Context, req *googleCloud.UploadForm) error
 }
 
 type Service struct {
@@ -67,6 +68,14 @@ func (s *Service) UpdateBooks(c echo.Context, request *googleCloud.UpdateBooksFo
 
 func (s *Service) DeleteBooks(c echo.Context, request *googleCloud.DeleteUsersForm) error {
 	err := s.con.GCS.DeleteBooks(request)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Service) UploadImage(c echo.Context, request *googleCloud.UploadForm)  error {
+	err := s.con.GCS.UploadImage(request)
 	if err != nil {
 		return err
 	}

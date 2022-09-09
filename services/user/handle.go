@@ -102,3 +102,18 @@ func (h *Handler) UploadFile(c echo.Context) error {
 	})
 	
 }
+
+func (h *Handler) UploadFileUsers(c echo.Context) error {
+	var req UploadForm
+	file, _ := c.FormFile("file")
+	req.File = file
+	res, err := h.service.UploadFileUsers(c, req)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"link": res,
+	})
+	
+}

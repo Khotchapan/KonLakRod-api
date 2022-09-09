@@ -17,6 +17,7 @@ type UserInterface interface {
 	UpdateUsers(c echo.Context, request *UpdateUsersForm) error
 	DeleteUsers(c echo.Context, request *DeleteUsersForm) error
 	UploadFile(c echo.Context, req UploadForm) (string, error)
+	UploadFileUsers(c echo.Context, req UploadForm) (string, error)
 }
 
 type Service struct {
@@ -101,4 +102,17 @@ func (s *Service) UploadFile(c echo.Context, req UploadForm) (string, error) {
 
 	obj, _ := s.con.GCS.UploadFilePrivate(src, path)
 	return s.con.GCS.SignedURL(obj)
+}
+
+func (s *Service) UploadFileUsers(c echo.Context, req UploadForm) (string, error) {
+	// src, err := req.File.Open()
+	// if err != nil {
+	// 	return "", err
+	// }
+
+	// path := fmt.Sprintf("test/%s.png", uuid.New().String())
+
+	// obj, _ := s.con.GCS.UploadFilePrivate(src, path)
+	// return s.con.GCS.SignedURL(obj)
+	return "",nil
 }

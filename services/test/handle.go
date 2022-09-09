@@ -89,3 +89,33 @@ func (h *Handler) DeleteBooks(c echo.Context) error {
 	response := &mongodb.Response{}
 	return c.JSON(http.StatusOK, response.SuccessfulOK())
 }
+
+func (h *Handler) UploadImage(c echo.Context) error {
+	//var request *googleCloud.UploadForm
+
+	// Multipart form
+	// form, err := c.MultipartForm()
+	// if err != nil {
+	// 	return err
+	// }
+	file, err := c.FormFile("file")
+	if err != nil {
+		return err
+	}
+
+	request := &googleCloud.UploadForm{
+		File: file,
+	}
+	//request.File = file
+
+	err = h.service.UploadImage(c, request)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	// return c.JSON(http.StatusOK, map[string]interface{}{
+	// 	"link": res,
+	// })
+	response := &mongodb.Response{}
+	return c.JSON(http.StatusOK, response.SuccessfulOK())
+}
