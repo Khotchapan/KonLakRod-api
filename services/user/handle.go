@@ -2,7 +2,6 @@ package user
 
 import (
 	"net/http"
-
 	"github.com/khotchapan/KonLakRod-api/internal/core/context"
 	"github.com/khotchapan/KonLakRod-api/mongodb"
 	"github.com/khotchapan/KonLakRod-api/mongodb/user"
@@ -26,6 +25,8 @@ func (h *Handler) GetAllUsers(c echo.Context) error {
 		//return echo.NewHTTPError(http.StatusBadRequest, err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	// uid := c.Request().Header.Get("UserID")
+	// log.Println("uid:",uid)
 	response, err := h.service.FindAllUsers(c, request)
 	if err != nil {
 		//return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -100,7 +101,7 @@ func (h *Handler) UploadFile(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"link": res,
 	})
-	
+
 }
 
 func (h *Handler) UploadFileUsers(c echo.Context) error {
@@ -115,5 +116,5 @@ func (h *Handler) UploadFileUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"link": res,
 	})
-	
+
 }

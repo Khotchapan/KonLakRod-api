@@ -1,6 +1,7 @@
 package context
 
 import (
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -48,3 +49,21 @@ func (c *CustomContext) BindAndValidate(i interface{}) error {
 // 		}
 // 	}
 // }
+
+const (
+	pathKey     = "path"
+	userContext = "user"
+)
+
+// Claims jwt claims
+type Claims struct {
+	jwt.StandardClaims
+	RefreshTokenID uint
+	Roles          []string
+}
+
+// GetClaims get user claims
+func (c *CustomContext) GetClaims() *Claims {
+	user := c.Get(userContext).(*jwt.Token)
+	return user.Claims.(*Claims)
+}

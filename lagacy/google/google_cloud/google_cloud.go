@@ -227,7 +227,7 @@ func (g *GoogleCloudStorage) DeleteBooks(request *DeleteUsersForm) error {
 
 func (g *GoogleCloudStorage) UploadImage(request *UploadForm) error {
 	//imagePath := request.File.Filename
-	imagePath := fmt.Sprintf("users/%s-%s.jpeg", uuid.New().String(), strconv.FormatInt(time.Now().UnixNano(), 10))
+	imagePath := fmt.Sprintf("tests/%s-%s.jpeg", uuid.New().String(), strconv.FormatInt(time.Now().UnixNano(), 10))
 	bucket := Bucket
 	// Source
 	src, err := request.File.Open()

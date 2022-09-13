@@ -1,6 +1,8 @@
 package user
 
 import (
+	"log"
+
 	"github.com/khotchapan/KonLakRod-api/mongodb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,7 +17,7 @@ type UsersInterface interface {
 	Update(i interface{}) error
 	Delete(i interface{}) error
 	FindAllUsers(request *GetAllUsersForm) (*mongodb.Page, error)
-	FindOneUsers(id *primitive.ObjectID, i interface{}) error
+	FindOneByName(name *string, i interface{}) error
 	FindOneByObjectID(oid *primitive.ObjectID, i interface{}) error
 }
 
@@ -75,12 +77,13 @@ func (r *Repo) FindAllUsers(f *GetAllUsersForm) (*mongodb.Page, error) {
 	}
 	return response, err
 }
-func (r *Repo) FindOneUsers(id *primitive.ObjectID, i interface{}) error {
+func (r *Repo) FindOneByName(name *string, i interface{}) error {
+	log.Println("name:", *name)
 	err := r.FindOneByPrimitiveM(primitive.M{
 		"deleted_at": primitive.M{
 			"$exists": false,
 		},
-		"_id": id,
+		"username": name,
 		//"user_id": userID,
 	}, i)
 	if err != nil {

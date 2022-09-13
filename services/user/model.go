@@ -14,18 +14,11 @@ type GetOneUsersForm struct {
 type CreateUsersForm struct {
 	FirstName   *string `json:"first_name" validate:"required"`
 	LastName    *string `json:"last_name" validate:"required"`
+	Username    *string `json:"username" validate:"required"`
+	Password    *string `json:"password" validate:"required"`
 	Image       *string `json:"image"`
 	Email       *string `json:"email"`
 	PhoneNumber *string `json:"phone_number"`
-}
-
-type UpdateUsersForm struct {
-	ID          *primitive.ObjectID `json:"id" validate:"required"`
-	FirstName   *string             `json:"first_name" validate:"required"`
-	LastName    *string             `json:"last_name" validate:"required"`
-	Image       *string             `json:"image"`
-	Email       *string             `json:"email"`
-	PhoneNumber *string             `json:"phone_number"`
 }
 
 func (f *CreateUsersForm) fill(data *user.Users) *user.Users {
@@ -34,6 +27,9 @@ func (f *CreateUsersForm) fill(data *user.Users) *user.Users {
 	}
 	if f.LastName != nil {
 		data.LastName = *f.LastName
+	}
+	if f.Username != nil {
+		data.Username = *f.Username
 	}
 	if f.Image != nil {
 		data.Image = *f.Image
@@ -46,6 +42,16 @@ func (f *CreateUsersForm) fill(data *user.Users) *user.Users {
 	}
 	return data
 }
+
+type UpdateUsersForm struct {
+	ID          *primitive.ObjectID `json:"id" validate:"required"`
+	FirstName   *string             `json:"first_name" validate:"required"`
+	LastName    *string             `json:"last_name" validate:"required"`
+	Image       *string             `json:"image"`
+	Email       *string             `json:"email"`
+	PhoneNumber *string             `json:"phone_number"`
+}
+
 func (f *UpdateUsersForm) fill(data *user.Users) *user.Users {
 	if f.ID != nil {
 		data.ID = *f.ID

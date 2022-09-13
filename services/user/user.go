@@ -3,8 +3,11 @@ package user
 import (
 	"context"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/khotchapan/KonLakRod-api/connection"
+	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
+	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/khotchapan/KonLakRod-api/mongodb"
 	"github.com/khotchapan/KonLakRod-api/mongodb/user"
 	"github.com/labstack/echo/v4"
@@ -42,7 +45,7 @@ func (s *Service) FindAllUsers(c echo.Context, request *user.GetAllUsersForm) (*
 }
 func (s *Service) FindOneUsers(c echo.Context, request *GetOneUsersForm) (*user.Users, error) {
 	response := &user.Users{}
-	err := s.collection.Users.FindOneUsers(request.ID, response)
+	err := s.collection.Users.FindOneByObjectID(request.ID, response)
 	if err != nil {
 		return nil, err
 	}
@@ -51,16 +54,15 @@ func (s *Service) FindOneUsers(c echo.Context, request *GetOneUsersForm) (*user.
 
 func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
 	us := &user.Users{}
-	//data := []*user.Users{}
-	// err := s.collection.Users.Create(request, &data)
-	// if err != nil {
-	// 	return err
-	// }
+	password, err := bcrypt.GeneratePassword(*request.Password)
+	if err != nil {
+		//c.Error(err)
+		return err
+	}
+	us.PasswordHash = password
+	us.Roles = []string{entities.UserRole,entities.AdminRole,entities.GarageRole}
 	u := request.fill(us)
-	// if len(data) > 0 {
-	// 	dm.PharmacyCode = data[0].PharmacyCode
-	// }
-	err := s.collection.Users.Create(u)
+	err = s.collection.Users.Create(u)
 	if err != nil {
 		return err
 	}
@@ -114,5 +116,5 @@ func (s *Service) UploadFileUsers(c echo.Context, req UploadForm) (string, error
 
 	// obj, _ := s.con.GCS.UploadFilePrivate(src, path)
 	// return s.con.GCS.SignedURL(obj)
-	return "",nil
+	return "", nil
 }
