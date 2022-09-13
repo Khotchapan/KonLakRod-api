@@ -60,7 +60,7 @@ func main() {
 	})
 
 	// Login route
-	api.POST("/login", login)
+	//api.POST("/login", login)
 
 	// Unauthenticated route
 	api.GET("/", accessible)
@@ -74,6 +74,7 @@ func main() {
 	guestGroup := api.Group("/guest")
 	{
 		guestGroup.POST("/login", guest.PostLoginUsers)
+		guestGroup.POST("/login-test", guest.Login)
 	}
 
 	//user
@@ -164,42 +165,7 @@ type jwtCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func login(c echo.Context) error {
-	username := c.FormValue("username")
-	password := c.FormValue("password")
 
-	// Throws unauthorized error
-	if username != "jon" || password != "shhh!" {
-		return echo.ErrUnauthorized
-	}
-
-	// Set custom claims
-	// claims := &jwtCustomClaims{
-	// 	"Jon Snow",
-	// 	true,
-	// 	jwt.StandardClaims{
-	// 		ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
-	// 	},
-	// }
-	now := time.Now()
-	claims := &coreContext.Claims{}
-	claims.Subject = fmt.Sprint("Hello Woruld")
-	claims.Issuer = "kidscare.plus"
-	claims.IssuedAt = now.Unix()
-	claims.ExpiresAt = now.Add(time.Hour * 24).Unix()
-	// Create token with claims
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte("secret"))
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-	})
-}
 
 func accessible(c echo.Context) error {
 	return c.String(http.StatusOK, "Accessible")

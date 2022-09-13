@@ -2,6 +2,7 @@ package context
 
 import (
 	"github.com/golang-jwt/jwt"
+	"github.com/khotchapan/KonLakRod-api/mongodb/user"
 	"github.com/labstack/echo/v4"
 )
 
@@ -60,6 +61,8 @@ type Claims struct {
 	jwt.StandardClaims
 	RefreshTokenID uint
 	Roles          []string
+	User           *user.Users `json:"user"`
+	UserID         string      `json:"user_id"`
 }
 
 // GetClaims get user claims
