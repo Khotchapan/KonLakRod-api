@@ -2,8 +2,8 @@ package test
 
 import (
 	"context"
-	"github.com/khotchapan/KonLakRod-api/connection"
-	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
+	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
+	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/labstack/echo/v4"
 )
 

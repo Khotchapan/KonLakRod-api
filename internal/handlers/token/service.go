@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/khotchapan/KonLakRod-api/connection"
+	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
-	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/labstack/echo/v4"
 )
 

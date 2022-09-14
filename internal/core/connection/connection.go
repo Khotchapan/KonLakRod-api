@@ -3,10 +3,8 @@ package connection
 import (
 	"context"
 	"log"
-
-	//"github.com/khotchapan/KonLakRod-api/internal/handlers/token"
-	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -23,7 +21,7 @@ type Connection struct {
 }
 
 type Collection struct {
-	Users        user.UsersInterface
+	Users user.UsersInterface
 	//TokenService token.ServiceInterface
 }
 

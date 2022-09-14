@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/khotchapan/KonLakRod-api/internal/core/context"
-	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
+	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"github.com/labstack/echo/v4"
 )

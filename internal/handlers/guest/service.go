@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/khotchapan/KonLakRod-api/connection"
+	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/khotchapan/KonLakRod-api/internal/handlers/token"
