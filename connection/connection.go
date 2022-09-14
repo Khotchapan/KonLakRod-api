@@ -6,7 +6,7 @@ import (
 
 	//"github.com/khotchapan/KonLakRod-api/internal/handlers/token"
 	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
-	"github.com/khotchapan/KonLakRod-api/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

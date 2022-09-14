@@ -9,7 +9,7 @@ import (
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/khotchapan/KonLakRod-api/internal/handlers/token"
-	"github.com/khotchapan/KonLakRod-api/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/labstack/echo/v4"
 )
 

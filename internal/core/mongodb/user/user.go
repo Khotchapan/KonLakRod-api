@@ -3,7 +3,7 @@ package user
 import (
 	"log"
 
-	"github.com/khotchapan/KonLakRod-api/mongodb"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )

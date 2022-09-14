@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/khotchapan/KonLakRod-api/mongodb"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 )
 
 type Users struct {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/khotchapan/KonLakRod-api/internal/core/context"
 	googleCloud "github.com/khotchapan/KonLakRod-api/lagacy/google/google_cloud"
-	"github.com/khotchapan/KonLakRod-api/mongodb"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"github.com/labstack/echo/v4"
 )
 

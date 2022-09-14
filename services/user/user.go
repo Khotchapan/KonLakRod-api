@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/khotchapan/KonLakRod-api/connection"
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
-	"github.com/khotchapan/KonLakRod-api/mongodb"
-	"github.com/khotchapan/KonLakRod-api/mongodb/user"
 	"github.com/labstack/echo/v4"
 )
 
@@ -60,7 +60,7 @@ func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
 		return err
 	}
 	us.PasswordHash = password
-	us.Roles = []string{entities.UserRole,entities.AdminRole,entities.GarageRole}
+	us.Roles = []string{entities.UserRole, entities.AdminRole, entities.GarageRole}
 	u := request.fill(us)
 	err = s.collection.Users.Create(u)
 	if err != nil {

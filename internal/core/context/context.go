@@ -2,7 +2,7 @@ package context
 
 import (
 	"github.com/golang-jwt/jwt"
-	"github.com/khotchapan/KonLakRod-api/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/labstack/echo/v4"
 )
 

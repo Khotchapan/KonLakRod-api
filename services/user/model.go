@@ -3,7 +3,7 @@ package user
 import (
 	"mime/multipart"
 
-	"github.com/khotchapan/KonLakRod-api/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

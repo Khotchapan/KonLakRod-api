@@ -11,7 +11,7 @@ import (
 	"github.com/khotchapan/KonLakRod-api/connection"
 	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
-	"github.com/khotchapan/KonLakRod-api/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/labstack/echo/v4"
 )
 

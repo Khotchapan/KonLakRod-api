@@ -3,8 +3,8 @@ package user
 import (
 	"net/http"
 	"github.com/khotchapan/KonLakRod-api/internal/core/context"
-	"github.com/khotchapan/KonLakRod-api/mongodb"
-	"github.com/khotchapan/KonLakRod-api/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/labstack/echo/v4"
 )
 

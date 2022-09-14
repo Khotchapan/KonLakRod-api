@@ -1,6 +1,6 @@
 package entities
 
-import "github.com/khotchapan/KonLakRod-api/mongodb/user"
+import "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 
 // Token token
 type Token struct {
