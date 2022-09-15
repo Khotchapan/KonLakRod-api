@@ -55,8 +55,7 @@ func Router(options *Options) {
 	guest := guestEndpoint.NewHandler(guestEndpoint.NewService(app, collection))
 	guestGroup := api.Group("/guest")
 	{
-		guestGroup.POST("/login", guest.PostLoginUsers)
-		guestGroup.POST("/login-test", guest.Login)
+		guestGroup.POST("/login", guest.LoginUsers)
 	}
 
 	//user
@@ -81,7 +80,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testService.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.2})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.3})
 }
 
 // jwtCustomClaims are custom claims extending default ones.
