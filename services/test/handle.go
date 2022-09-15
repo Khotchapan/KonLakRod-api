@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/khotchapan/KonLakRod-api/internal/core/context"
-	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
+	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/labstack/echo/v4"
 )
 
@@ -91,13 +91,6 @@ func (h *Handler) DeleteBooks(c echo.Context) error {
 }
 
 func (h *Handler) UploadImage(c echo.Context) error {
-	//var request *googleCloud.UploadForm
-
-	// Multipart form
-	// form, err := c.MultipartForm()
-	// if err != nil {
-	// 	return err
-	// }
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
@@ -106,16 +99,14 @@ func (h *Handler) UploadImage(c echo.Context) error {
 	request := &googleCloud.UploadForm{
 		File: file,
 	}
-	//request.File = file
 
-	err = h.service.UploadImage(c, request)
+	url, err := h.service.UploadImage(c, request)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	// return c.JSON(http.StatusOK, map[string]interface{}{
-	// 	"link": res,
-	// })
-	response := &mongodb.Response{}
-	return c.JSON(http.StatusOK, response.SuccessfulOK())
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"link": url,
+	})
+	
 }

@@ -1,11 +1,12 @@
 package user
 
 import (
-	"net/http"
 	"github.com/khotchapan/KonLakRod-api/internal/core/context"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type Handler struct {
@@ -105,16 +106,19 @@ func (h *Handler) UploadFile(c echo.Context) error {
 }
 
 func (h *Handler) UploadFileUsers(c echo.Context) error {
-	var req UploadForm
-	file, _ := c.FormFile("file")
-	req.File = file
-	res, err := h.service.UploadFileUsers(c, req)
+	file, err := c.FormFile("file")
+	if err != nil {
+		return err
+	}
+
+	request := &googleCloud.UploadForm{
+		File: file,
+	}
+	imageStructure, err := h.service.UploadFileUsers(c, request)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"link": res,
-	})
+	return c.JSON(http.StatusOK, imageStructure)
 
 }

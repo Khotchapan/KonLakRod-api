@@ -44,7 +44,9 @@ func main() {
 
 	godotenv.Load()
 	port := os.Getenv("PORT")
-	port = "1323"
+	if port == "" {
+		port = "80" // Default port if not specified
+	}
 	//========================================================
 
 	//========================================================

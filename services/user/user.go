@@ -5,11 +5,12 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
+	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
+	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,7 +21,7 @@ type UserInterface interface {
 	UpdateUsers(c echo.Context, request *UpdateUsersForm) error
 	DeleteUsers(c echo.Context, request *DeleteUsersForm) error
 	UploadFile(c echo.Context, req UploadForm) (string, error)
-	UploadFileUsers(c echo.Context, req UploadForm) (string, error)
+	UploadFileUsers(c echo.Context, req *googleCloud.UploadForm) (*googleCloud.ImageStructure, error)
 }
 
 type Service struct {
@@ -106,15 +107,16 @@ func (s *Service) UploadFile(c echo.Context, req UploadForm) (string, error) {
 	return s.con.GCS.SignedURL(obj)
 }
 
-func (s *Service) UploadFileUsers(c echo.Context, req UploadForm) (string, error) {
-	// src, err := req.File.Open()
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	// path := fmt.Sprintf("test/%s.png", uuid.New().String())
-
-	// obj, _ := s.con.GCS.UploadFilePrivate(src, path)
-	// return s.con.GCS.SignedURL(obj)
-	return "", nil
+func (s *Service) UploadFileUsers(c echo.Context, request *googleCloud.UploadForm) (*googleCloud.ImageStructure, error) {
+	imageStructure, err := s.con.GCS.UploadFileUsers(request)
+	if err != nil {
+		return nil, err
+	}
+	//log.Println("objectName:", *objectName)
+	signedUrl, err := s.con.GCS.SignedURL(imageStructure.ImageName)
+	if err != nil {
+		return nil, err
+	}
+	imageStructure.URL = signedUrl
+	return imageStructure, nil
 }

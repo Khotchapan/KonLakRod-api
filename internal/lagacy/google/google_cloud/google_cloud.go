@@ -27,14 +27,14 @@ type IGCS interface {
 	UploadFile(file multipart.File, path string) (string, error)
 	GetBucketName() string
 	UploadFilePrivate(file multipart.File, path string) (string, error)
-	//UploadFileUsers(file multipart.File, path string) (string, error)
+	UploadFileUsers(request *UploadForm) (*ImageStructure, error)
 	SignedURL(object string) (string, error)
 	FindAllBooks() ([]*Books, error)
 	FindOneBooks(id *string) ([]*Books, error)
 	CreateBooks(i *Books) error
 	UpdateBooks(i *Books) error
 	DeleteBooks(request *DeleteUsersForm) error
-	UploadImage(request *UploadForm) error
+	UploadImage(request *UploadForm) (*string, error)
 }
 
 type GoogleCloudStorage struct {
@@ -115,17 +115,17 @@ func (g *GoogleCloudStorage) GetBucketName() string {
 }
 
 func (g *GoogleCloudStorage) SignedURL(object string) (string, error) {
-	// storage.SignedURL(g.bucketName, object, &storage.SignedURLOptions{
-	// 	GoogleAccessID: ,
-	// })
-	// ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	// defer cancel()
-	// acc, _ := g.cl.ServiceAccount(ctx, g.projectID)
-	return g.cl.Bucket(g.bucketName).SignedURL(object, &storage.SignedURLOptions{
+	bucket := Bucket
+	opts := &storage.SignedURLOptions{
 		Scheme:  storage.SigningSchemeV4,
 		Method:  "GET",
 		Expires: time.Now().Add(30 * time.Minute),
-	})
+	}
+	url, err := g.storage.Bucket(bucket).SignedURL(object, opts)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (g *GoogleCloudStorage) FindAllBooks() ([]*Books, error) {
@@ -225,32 +225,8 @@ func (g *GoogleCloudStorage) DeleteBooks(request *DeleteUsersForm) error {
 
 }
 
-func (g *GoogleCloudStorage) UploadImage(request *UploadForm) error {
-	//imagePath := request.File.Filename
-	imagePath := fmt.Sprintf("tests/%s-%s.jpeg", uuid.New().String(), strconv.FormatInt(time.Now().UnixNano(), 10))
-	bucket := Bucket
-	// Source
-	src, err := request.File.Open()
-	if err != nil {
-		return err
-	}
-	defer src.Close()
-	log.Println("imagePath:", imagePath)
-	wc := g.storage.Bucket(bucket).Object(imagePath).NewWriter(context.Background())
-	if _, err = io.Copy(wc, src); err != nil {
-		return err
-	}
-	if err := wc.Close(); err != nil {
-		return err
-	}
-	err = CreateImageUrl(imagePath, bucket, context.Background(), g.client)
-	if err != nil {
-		return err
-	}
-	return nil
 
-}
-func CreateImageUrl(imagePath string, bucket string, ctx context.Context, client *firestore.Client) error {
+func CreateImageUrl(imagePath string, bucket string, ctx context.Context, client *firestore.Client) (*string, error) {
 	imageStructure := ImageStructure{
 		ImageName: imagePath,
 		URL:       "https://storage.cloud.google.com/" + bucket + "/" + imagePath,
@@ -258,8 +234,72 @@ func CreateImageUrl(imagePath string, bucket string, ctx context.Context, client
 
 	_, _, err := client.Collection("images").Add(ctx, imageStructure)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	log.Println("imageStructure.ImageName:", imageStructure.ImageName)
+	log.Println("imageStructure.URL:", imageStructure.URL)
+	return &imageStructure.URL, nil
+}
+func CreateImageUrlUsers(imagePath string, bucket string, ctx context.Context, client *firestore.Client) (*ImageStructure, error) {
+	imageStructure := ImageStructure{
+		ImageName: imagePath,
+		URL:       "https://storage.cloud.google.com/" + bucket + "/" + imagePath,
 	}
 
-	return nil
+	// _, _, err := client.Collection("images").Add(ctx, imageStructure)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	log.Println("imageStructure.ImageName:", imageStructure.ImageName)
+	log.Println("imageStructure.URL:", imageStructure.URL)
+	return &imageStructure, nil
+}
+func (g *GoogleCloudStorage) UploadImage(request *UploadForm) (*string, error) {
+	imagePath := fmt.Sprintf("tests/%s-%s.jpeg", uuid.New().String(), strconv.FormatInt(time.Now().UnixNano(), 10))
+	bucket := Bucket
+	src, err := request.File.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer src.Close()
+	log.Println("imagePath:", imagePath)
+	wc := g.storage.Bucket(bucket).Object(imagePath).NewWriter(context.Background())
+	if _, err = io.Copy(wc, src); err != nil {
+		return nil, err
+	}
+	if err := wc.Close(); err != nil {
+		return nil, err
+	}
+	_, err = CreateImageUrl(imagePath, bucket, context.Background(), g.client)
+	if err != nil {
+		return nil, err
+	}
+	objectHandle := g.storage.Bucket(bucket).Object(imagePath)
+	objectName := objectHandle.ObjectName()
+	return &objectName, nil
+}
+
+func (g *GoogleCloudStorage) UploadFileUsers(request *UploadForm) (*ImageStructure, error) {
+	imagePath := fmt.Sprintf("users/%s-%s.jpeg", uuid.New().String(), strconv.FormatInt(time.Now().UnixNano(), 10))
+	bucket := Bucket
+	src, err := request.File.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer src.Close()
+	log.Println("imagePath:", imagePath)
+	wc := g.storage.Bucket(bucket).Object(imagePath).NewWriter(context.Background())
+	if _, err = io.Copy(wc, src); err != nil {
+		return nil, err
+	}
+	if err := wc.Close(); err != nil {
+		return nil, err
+	}
+	imageStructure, err := CreateImageUrlUsers(imagePath, bucket, context.Background(), g.client)
+	if err != nil {
+		return nil, err
+	}
+	// objectHandle := g.storage.Bucket(bucket).Object(imagePath)
+	// objectName := objectHandle.ObjectName()
+	return imageStructure, nil
 }

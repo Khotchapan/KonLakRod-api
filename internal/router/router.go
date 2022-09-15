@@ -68,7 +68,7 @@ func Router(options *Options) {
 	usersGroup.PUT("", users.PutUsers)
 	usersGroup.DELETE("", users.DeleteUsers)
 	usersGroup.POST("/upload", users.UploadFile)
-	usersGroup.POST("image/upload", users.UploadFileUsers)
+	usersGroup.POST("/image/upload", users.UploadFileUsers)
 
 	// test zone
 	testService := test.NewHandler(test.NewService(app, collection))
@@ -81,7 +81,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testService.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.1})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.2})
 }
 
 // jwtCustomClaims are custom claims extending default ones.

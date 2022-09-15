@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"log"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/labstack/echo/v4"
@@ -13,7 +14,7 @@ type TestInterface interface {
 	CreateBooks(c echo.Context, request *googleCloud.CreateBooksForm) error
 	UpdateBooks(c echo.Context, request *googleCloud.UpdateBooksForm) error
 	DeleteBooks(c echo.Context, request *googleCloud.DeleteUsersForm) error
-	UploadImage(c echo.Context, req *googleCloud.UploadForm) error
+	UploadImage(c echo.Context, req *googleCloud.UploadForm) (*string, error)
 }
 
 type Service struct {
@@ -74,10 +75,15 @@ func (s *Service) DeleteBooks(c echo.Context, request *googleCloud.DeleteUsersFo
 	return nil
 }
 
-func (s *Service) UploadImage(c echo.Context, request *googleCloud.UploadForm)  error {
-	err := s.con.GCS.UploadImage(request)
+func (s *Service) UploadImage(c echo.Context, request *googleCloud.UploadForm) (*string, error) {
+	objectName, err := s.con.GCS.UploadImage(request)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	log.Println("objectName:", *objectName)
+	urlPrivate, err := s.con.GCS.SignedURL(*objectName)
+	if err != nil {
+		return nil, err
+	}
+	return &urlPrivate, nil
 }

@@ -57,6 +57,6 @@ type UploadForm struct {
 	File *multipart.FileHeader `form:"file"`
 }
 type ImageStructure struct {
-	ImageName string `json:"imageName" firestore:"imageName"`
+	ImageName string `json:"image_name" firestore:"imageName"`
 	URL       string `json:"url" firestore:"url"`
 }
