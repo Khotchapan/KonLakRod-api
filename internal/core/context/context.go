@@ -4,6 +4,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CustomContext struct {
@@ -62,7 +63,7 @@ type Claims struct {
 	RefreshTokenID uint
 	Roles          []string
 	User           *user.Users `json:"user"`
-	UserID         string      `json:"user_id"`
+	UserID         *primitive.ObjectID      `json:"user_id"`
 }
 
 // GetClaims get user claims

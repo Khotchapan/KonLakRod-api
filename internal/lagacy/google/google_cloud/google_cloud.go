@@ -225,7 +225,6 @@ func (g *GoogleCloudStorage) DeleteBooks(request *DeleteUsersForm) error {
 
 }
 
-
 func CreateImageUrl(imagePath string, bucket string, ctx context.Context, client *firestore.Client) (*string, error) {
 	imageStructure := ImageStructure{
 		ImageName: imagePath,

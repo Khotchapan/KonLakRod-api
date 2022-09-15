@@ -18,7 +18,13 @@ func NewHandler(service UserInterface) *Handler {
 		service: service,
 	}
 }
-
+func (h *Handler) GetMe(c echo.Context) error {
+	response, err := h.service.CallGetMe(c)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, response)
+}
 func (h *Handler) GetAllUsers(c echo.Context) error {
 	request := &user.GetAllUsersForm{}
 	cc := c.(*context.CustomContext)

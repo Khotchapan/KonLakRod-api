@@ -41,7 +41,7 @@ func (s *Service) LoginUsers(c echo.Context, request *LoginUsersForm) (*string, 
 		log.Println("check")
 		return nil, errors.New("password is incorrect")
 	}
-	token, err := s.tokenService.Create2(c, us)
+	token, err := s.tokenService.Create(c, us)
 	if err != nil {
 		return nil, err
 	}

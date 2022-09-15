@@ -2,11 +2,16 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
+	"strings"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
+	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
@@ -15,6 +20,7 @@ import (
 )
 
 type UserInterface interface {
+	CallGetMe(c echo.Context) (*user.Users, error)
 	FindAllUsers(c echo.Context, request *user.GetAllUsersForm) (*mongodb.Page, error)
 	FindOneUsers(c echo.Context, request *GetOneUsersForm) (*user.Users, error)
 	CreateUsers(c echo.Context, request *CreateUsersForm) error
@@ -35,7 +41,42 @@ func NewService(app, collection context.Context) *Service {
 		collection: connection.GetCollection(collection, connection.CollectionInit),
 	}
 }
+func (s *Service) CallGetMe(c echo.Context) (*user.Users, error) {
+	response := &user.Users{}
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*coreContext.Claims)
+	log.Println("UserID:", claims.UserID)
+	userID := claims.UserID
+	err := s.collection.Users.FindOneByObjectID(userID, response)
+	if err != nil {
+		return nil, err
+	}
+	//err := s.collection.Users.FindOneByID(c.Get("user").(*jwt.User).ID.Hex(), response)
+	// if err != nil {
+	// 	return nil, errs.New(http.StatusConflict, "10003", "user not found")
+	// }
 
+	if response.Image != "" && !strings.Contains(response.Image, "http") {
+		url, err := s.con.GCS.SignedURL(response.Image)
+		if err != nil {
+			return nil, errors.New("can not singed url")
+		}
+		response.Image = url
+	}
+
+	// if response.HealthInfo.Birthday != "" {
+	// 	birthday, err := time.Parse("2006-01-02", response.HealthInfo.Birthday)
+	// 	if err != nil {
+	// 		return nil, errs.NewBadRequest("Can not convert to time", err.Error())
+	// 	}
+
+	// 	y, m, d := birthday.Date()
+	// 	dob := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	// 	response.HealthInfo.Age = age.Age(dob)
+	// }
+
+	return response, nil
+}
 func (s *Service) FindAllUsers(c echo.Context, request *user.GetAllUsersForm) (*mongodb.Page, error) {
 	//objectUserID := &c.Get("user").(*jwt.User).ID
 	response, err := s.collection.Users.FindAllUsers(request)

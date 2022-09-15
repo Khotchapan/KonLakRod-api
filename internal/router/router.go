@@ -2,6 +2,10 @@ package router
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"path"
+
 	"github.com/golang-jwt/jwt"
 	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
 	guestEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/guest"
@@ -9,8 +13,6 @@ import (
 	"github.com/khotchapan/KonLakRod-api/services/user"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
-	"path"
 )
 
 type Options struct {
@@ -27,10 +29,9 @@ func Router(options *Options) {
 	//===============================================================================
 	// Configure middleware with the custom claims type
 	config := middleware.JWTConfig{
-		//Claims:     &jwtCustomClaims{},
 		Claims:     &coreContext.Claims{},
 		SigningKey: []byte("secret"),
-		//ContextKey: "user",
+		SigningMethod:jwt.SigningMethodHS256.Name ,
 	}
 	checkSessionMiddleware := middleware.JWTWithConfig(config)
 	//===============================================================================
@@ -61,6 +62,7 @@ func Router(options *Options) {
 	//user
 	users := user.NewHandler(user.NewService(app, collection))
 	usersGroup := api.Group("/users")
+	usersGroup.GET("/me", users.GetMe,checkSessionMiddleware)
 	usersGroup.GET("", users.GetAllUsers)
 	usersGroup.GET("/:id", users.GetOneUsers)
 	usersGroup.POST("", users.PostUsers)
@@ -80,7 +82,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testService.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.3})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.4})
 }
 
 // jwtCustomClaims are custom claims extending default ones.
@@ -92,6 +94,9 @@ type jwtCustomClaims struct {
 }
 
 func accessible(c echo.Context) error {
+	var mystring = jwt.SigningMethodHS256.Name
+	var mystring2 = jwt.SigningMethodHS256.Alg()
+	fmt.Printf("%s \n %s", mystring, mystring2)
 	return c.String(http.StatusOK, "Accessible")
 }
 

@@ -8,7 +8,7 @@ type Users struct {
 	mongodb.Model  `bson:",inline"`
 	FirstName      string   `json:"firstName" bson:"first_name,omitempty"`
 	LastName       string   `json:"lastName" bson:"last_name,omitempty"`
-	Image          string   `json:"profileImage" bson:"user_image,omitempty"`
+	Image          string   `json:"image" bson:"image,omitempty"`
 	Email          string   `json:"email,omitempty" bson:"email,omitempty"`
 	PhoneNumber    string   `json:"phoneNumber,omitempty" bson:"phone_number,omitempty"`
 	Birthday       string   `json:"birthday" bson:"birthday,omitempty"`
