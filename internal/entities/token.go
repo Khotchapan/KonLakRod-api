@@ -8,14 +8,25 @@ import (
 
 type Tokens struct {
 	mongodb.Model `bson:",inline"`
-	Token         string      `json:"token" bson:"token,omitempty"`
-	RefreshToken  string      `json:"refresh_token" bson:"refresh_token,omitempty"`
-	DeviceToken   string      `json:"device_token,omitempty" bson:"device_token,omitempty"`
-	UserRefId        *primitive.ObjectID       `json:"user_ref_id" bson:"user_ref_id,omitempty"`
-	User          *user.Users `json:"user" bson:"user,omitempty"`
+	Token         string              `json:"token" bson:"token,omitempty"`
+	RefreshToken  string              `json:"refresh_token" bson:"refresh_token,omitempty"`
+	DeviceToken   string              `json:"device_token,omitempty" bson:"device_token,omitempty"`
+	UserRefId     *primitive.ObjectID `json:"user_ref_id" bson:"user_ref_id,omitempty"`
+	User          *user.Users         `json:"user" bson:"user,omitempty"`
 }
 
 type TokenResponse struct {
 	AccessToken  *string `json:"access_token"`
 	RefreshToken *string `json:"refresh_token"`
+	AccessTokenTest  *string `json:"access_token_test"`
+	RefreshTokenTest *string `json:"refresh_token_test"`
+}
+
+type TokenDetails struct {
+	AccessToken  string
+	RefreshToken string
+	AccessUuid   string
+	RefreshUuid  string
+	AtExpires    int64
+	RtExpires    int64
 }

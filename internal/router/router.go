@@ -88,7 +88,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testService.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.4})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.5})
 }
 
 // jwtCustomClaims are custom claims extending default ones.

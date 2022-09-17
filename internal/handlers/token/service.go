@@ -16,7 +16,6 @@ import (
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ServiceInterface interface {
@@ -68,6 +67,28 @@ func (s *Service) createJWTToken(c echo.Context, u *user.Users) (*entities.Token
 	if err != nil {
 		return nil, err
 	}
+	td := &entities.TokenDetails{}
+	td.AtExpires = time.Now().Add(time.Hour * 2).Unix()
+	td.AccessUuid = uuid.New().String()
+	td.RtExpires = time.Now().Add(time.Minute * 24 * 7).Unix()
+	td.RefreshUuid = uuid.New().String()
+	td.AccessToken, err = token.SignedString([]byte("secret"))
+	if err != nil {
+		return nil, err
+	}
+	//====================================================================
+	rtToken := jwt.New(jwt.SigningMethodHS256)
+	rtClaims := rtToken.Claims.(jwt.MapClaims)
+	rtClaims["id"] = &u.ID
+	rtClaims["sub"] = "refresh_token"
+	rtClaims["exp"] = td.RtExpires
+	rtClaims["jti"] = td.RefreshUuid
+	td.RefreshToken, err = rtToken.SignedString([]byte("secret"))
+	if err != nil {
+		return nil, err
+	}
+
+	//====================================================================
 	tk := &entities.Tokens{RefreshToken: rto,
 		UserRefId: &u.ID}
 
@@ -77,40 +98,56 @@ func (s *Service) createJWTToken(c echo.Context, u *user.Users) (*entities.Token
 	}
 
 	tkr := &entities.TokenResponse{
-		AccessToken:  &t,
-		RefreshToken: &rto,
+		AccessToken:      &t,
+		RefreshToken:     &rto,
+		AccessTokenTest:  &td.AccessToken,
+		RefreshTokenTest: &td.RefreshToken,
 	}
+
 	return tkr, nil
 }
 func (s *Service) RefreshToken(c echo.Context, request *RefreshTokenForm) (*entities.TokenResponse, error) {
-	// err := s.verifyToken(request.RefreshToken)
-	// if err != nil {
-	// 	return nil, errors.New("invalid token or expired token")
-	// }
-	tk := &entities.Tokens{}
-	log.Println("request.RefreshToken:", *request.RefreshToken)
-	err := s.collection.Tokens.FindOneByRefreshToken(request.RefreshToken, tk)
-	log.Println("tk:", tk)
-	if err != nil && err != mongo.ErrNoDocuments {
-		// ErrNoDocuments means that the filter did not match any documents in the collection
-		return nil, errors.New("error no documents")
-	}
-	err = s.collection.Tokens.Delete(tk)
+	token, err := s.verifyToken(*request.RefreshToken)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("invalid token or expired token")
 	}
-	us := &user.Users{}
-	err = s.collection.Users.FindOneByObjectID(tk.UserRefId, us)
-	if err != nil {
-		return nil, err
-	}
-	log.Println("us:", us)
-	t, err := s.Create(c, us)
-	if err != nil {
 
-		return nil, err
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token or expired token")
 	}
-	return t, nil
+
+	id, ok := claims["id"].(string)
+	log.Println("id:", id)
+	if !ok {
+		return nil, errors.New("invalid JWT Payload")
+	}
+	return nil, nil
+	//============================================================================
+	// tk := &entities.Tokens{}
+	// log.Println("request.RefreshToken:", *request.RefreshToken)
+	// err := s.collection.Tokens.FindOneByRefreshToken(request.RefreshToken, tk)
+	// log.Println("tk:", tk)
+	// if err != nil && err != mongo.ErrNoDocuments {
+	// 	// ErrNoDocuments means that the filter did not match any documents in the collection
+	// 	return nil, errors.New("error no documents")
+	// }
+	// err = s.collection.Tokens.Delete(tk)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// us := &user.Users{}
+	// err = s.collection.Users.FindOneByObjectID(tk.UserRefId, us)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// log.Println("us:", us)
+	// t, err := s.Create(c, us)
+	// if err != nil {
+
+	// 	return nil, err
+	// }
+	// return t, nil
 
 }
 
@@ -124,13 +161,13 @@ func (s *Service) createRefreshToken(u *user.Users) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-func (s *Service) verifyToken(tokenStr string) error {
+func (s *Service) verifyToken(tokenStr string) (*jwt.Token, error) {
 	// Parse takes the token string and a function for looking up the key.
 	// The latter is especially useful if you use multiple keys for your application.
 	// The standard is to use 'kid' in the head of the token to identify
 	// which key to use, but the parsed token (head and claims) is provided
 	// to the callback, providing flexibility.
-	_, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -141,8 +178,8 @@ func (s *Service) verifyToken(tokenStr string) error {
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return token, nil
 }
