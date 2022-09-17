@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
 	guestEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/guest"
+	tokenEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/token"
 	"github.com/khotchapan/KonLakRod-api/services/test"
 	"github.com/khotchapan/KonLakRod-api/services/user"
 	"github.com/labstack/echo/v4"
@@ -57,6 +58,11 @@ func Router(options *Options) {
 	guestGroup := api.Group("/guest")
 	{
 		guestGroup.POST("/login", guest.LoginUsers)
+	}
+	token := tokenEndpoint.NewHandler(tokenEndpoint.NewService(app, collection))
+	tokens := api.Group("/tokens")
+	{
+		tokens.POST("/refreshToken", token.RefreshToken)
 	}
 
 	//user

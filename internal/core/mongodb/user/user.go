@@ -19,6 +19,7 @@ type UsersInterface interface {
 	FindAllUsers(request *GetAllUsersForm) (*mongodb.Page, error)
 	FindOneByName(name *string, i interface{}) error
 	FindOneByObjectID(oid *primitive.ObjectID, i interface{}) error
+	FindOneByID(id string, i interface{}) error
 }
 
 type Repo struct {

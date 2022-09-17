@@ -60,10 +60,10 @@ const (
 // Claims jwt claims
 type Claims struct {
 	jwt.StandardClaims
-	RefreshTokenID uint
-	Roles          []string
-	User           *user.Users `json:"user"`
-	UserID         *primitive.ObjectID      `json:"user_id"`
+	RefreshTokenID string              `json:"refresh_token"`
+	Roles          []string            `json:"roles"`
+	User           *user.Users         `json:"user"`
+	UserID         *primitive.ObjectID `json:"user_id"`
 }
 
 // GetClaims get user claims

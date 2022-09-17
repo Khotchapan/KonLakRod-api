@@ -2,10 +2,11 @@ package connection
 
 import (
 	"context"
-	"log"
+	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 )
 
 const (
@@ -21,8 +22,8 @@ type Connection struct {
 }
 
 type Collection struct {
-	Users user.UsersInterface
-	//TokenService token.ServiceInterface
+	Users  user.UsersInterface
+	Tokens token.RepoInterface
 }
 
 func GetConnect(ctx context.Context, k string) *Connection {

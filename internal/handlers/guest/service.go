@@ -8,12 +8,13 @@ import (
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/khotchapan/KonLakRod-api/internal/handlers/token"
 	"github.com/labstack/echo/v4"
 )
 
-type GuestInterface interface {
-	LoginUsers(c echo.Context, request *LoginUsersForm) (*string, error)
+type ServiceInterface interface {
+	LoginUsers(c echo.Context, request *LoginUsersForm) (*entities.TokenResponse, error)
 }
 
 type Service struct {
@@ -31,7 +32,7 @@ func NewService(app, collection context.Context) *Service {
 	}
 }
 
-func (s *Service) LoginUsers(c echo.Context, request *LoginUsersForm) (*string, error) {
+func (s *Service) LoginUsers(c echo.Context, request *LoginUsersForm) (*entities.TokenResponse, error) {
 	us := &user.Users{}
 	err := s.collection.Users.FindOneByName(request.Username, us)
 	if err != nil {

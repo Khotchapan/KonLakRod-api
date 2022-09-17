@@ -8,6 +8,7 @@ import (
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
 	users "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	tokens "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
 	coreValidator "github.com/khotchapan/KonLakRod-api/internal/core/validator"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/khotchapan/KonLakRod-api/internal/router"
@@ -34,6 +35,7 @@ func main() {
 	collection := context.WithValue(context.Background(), connection.CollectionInit,
 		connection.Collection{
 			Users: users.NewRepo(dbMonggo),
+			Tokens: tokens.NewRepo(dbMonggo),
 		})
 	options := &router.Options{
 		App:        app,

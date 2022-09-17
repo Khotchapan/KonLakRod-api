@@ -9,10 +9,10 @@ import (
 )
 
 type Handler struct {
-	service GuestInterface
+	service ServiceInterface
 }
 
-func NewHandler(service GuestInterface) *Handler {
+func NewHandler(service ServiceInterface) *Handler {
 	return &Handler{
 		service: service,
 		//service: NewService(c),
@@ -31,7 +31,5 @@ func (h *Handler) LoginUsers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-	})
+	return c.JSON(http.StatusOK, t)
 }

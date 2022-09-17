@@ -125,10 +125,10 @@ func (s *Service) UpdateUsers(c echo.Context, request *UpdateUsersForm) error {
 	return nil
 }
 func (s *Service) DeleteUsers(c echo.Context, request *DeleteUsersForm) error {
-	dm := &user.Users{
+	u := &user.Users{
 		Model: mongodb.Model{ID: *request.ID},
 	}
-	err := s.collection.Users.Delete(dm)
+	err := s.collection.Users.Delete(u)
 	if err != nil {
 		return err
 	}
