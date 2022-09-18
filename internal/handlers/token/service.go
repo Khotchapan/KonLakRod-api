@@ -16,6 +16,7 @@ import (
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ServiceInterface interface {
@@ -36,8 +37,7 @@ func NewService(app, collection context.Context) *Service {
 }
 
 func (s *Service) Create(c echo.Context, u *user.Users) (*entities.TokenResponse, error) {
-	log.Println("========STEP4========")
-	token, err := s.createJWTToken(c, u)
+	token, err := s.createJWTTokenTest(c, u)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (s *Service) createJWTToken(c echo.Context, u *user.Users) (*entities.Token
 	}
 
 	//====================================================================
-	tk := &entities.Tokens{RefreshToken: rto,
+	tk := &entities.Tokens{RefreshToken: td.RefreshToken,
 		UserRefId: &u.ID}
 
 	err = s.collection.Tokens.Create(tk)
@@ -106,6 +106,69 @@ func (s *Service) createJWTToken(c echo.Context, u *user.Users) (*entities.Token
 
 	return tkr, nil
 }
+func (s *Service) createJWTTokenTest(c echo.Context, u *user.Users) (*entities.TokenResponse, error) {
+	now := time.Now()
+	tokenDetailsTest := &entities.TokenDetailsTest{}
+	tokenDetailsTest.IssuedAt = now.Unix()
+	tokenDetailsTest.AccessTokenExpiresAt = now.Add(time.Hour * 24).Unix()
+	tokenDetailsTest.RefreshTokenExpiresAt = time.Now().Add(time.Hour * 24 * 7).Unix()
+	tokenDetailsTest.AccessTokenId = uuid.New().String()
+	tokenDetailsTest.RefreshTokenId = uuid.New().String()
+
+	claims := &coreContext.Claims{}
+	claims.Subject = "access_token"
+	claims.Issuer = "KonLakRod"
+	claims.IssuedAt = tokenDetailsTest.IssuedAt
+	claims.ExpiresAt = tokenDetailsTest.AccessTokenExpiresAt
+	claims.Id = tokenDetailsTest.AccessTokenId
+	claims.UserID = &u.ID
+	claims.Roles = u.Roles
+	claims.User = u
+	// Create token with claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// Generate encoded token and send it as response.
+	accessToken, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return nil, err
+	}
+	tokenDetailsTest.AccessToken = accessToken
+
+	//====================================================================
+	rtToken := jwt.New(jwt.SigningMethodHS256)
+	rtClaims := rtToken.Claims.(jwt.MapClaims)
+	rtClaims["sub"] = "refresh_token"
+	rtClaims["iss"] = "KonLakRod"
+	rtClaims["iat"] = tokenDetailsTest.IssuedAt
+	rtClaims["exp"] = tokenDetailsTest.RefreshTokenExpiresAt
+	rtClaims["jti"] = tokenDetailsTest.RefreshTokenId
+	rtClaims["user_id"] = &u.ID
+	rtClaims["roles"] = u.Roles
+	rtClaims["user"] = u
+	refreshToken, err := rtToken.SignedString([]byte("secret"))
+	if err != nil {
+		return nil, err
+	}
+	tokenDetailsTest.RefreshToken = refreshToken
+
+	//====================================================================
+	tk := &entities.Tokens{RefreshToken: tokenDetailsTest.RefreshToken,
+		UserRefId: &u.ID}
+
+	err = s.collection.Tokens.Create(tk)
+	if err != nil {
+		return nil, err
+	}
+
+	tkr := &entities.TokenResponse{
+		AccessToken:      &tokenDetailsTest.AccessToken,
+		RefreshToken:     &tokenDetailsTest.RefreshToken,
+		AccessTokenTest:  nil,
+		RefreshTokenTest: nil,
+	}
+
+	return tkr, nil
+}
+
 func (s *Service) RefreshToken(c echo.Context, request *RefreshTokenForm) (*entities.TokenResponse, error) {
 	token, err := s.verifyToken(*request.RefreshToken)
 	if err != nil {
@@ -115,39 +178,40 @@ func (s *Service) RefreshToken(c echo.Context, request *RefreshTokenForm) (*enti
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
 		return nil, errors.New("invalid token or expired token")
+		//return nil, echo.ErrUnauthorized
 	}
 
-	id, ok := claims["id"].(string)
-	log.Println("id:", id)
+	id, ok := claims["user_id"].(string)
+	log.Println("user_id:", id)
 	if !ok {
 		return nil, errors.New("invalid JWT Payload")
 	}
-	return nil, nil
+	//return nil, nil
 	//============================================================================
-	// tk := &entities.Tokens{}
-	// log.Println("request.RefreshToken:", *request.RefreshToken)
-	// err := s.collection.Tokens.FindOneByRefreshToken(request.RefreshToken, tk)
-	// log.Println("tk:", tk)
-	// if err != nil && err != mongo.ErrNoDocuments {
-	// 	// ErrNoDocuments means that the filter did not match any documents in the collection
-	// 	return nil, errors.New("error no documents")
-	// }
-	// err = s.collection.Tokens.Delete(tk)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// us := &user.Users{}
-	// err = s.collection.Users.FindOneByObjectID(tk.UserRefId, us)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// log.Println("us:", us)
-	// t, err := s.Create(c, us)
-	// if err != nil {
+	tk := &entities.Tokens{}
+	log.Println("request.RefreshToken:", *request.RefreshToken)
+	err = s.collection.Tokens.FindOneByRefreshToken(request.RefreshToken, tk)
+	log.Println("tk:", tk)
+	if err != nil && err != mongo.ErrNoDocuments {
+		// ErrNoDocuments means that the filter did not match any documents in the collection
+		return nil, errors.New("error no documents")
+	}
+	err = s.collection.Tokens.Delete(tk)
+	if err != nil {
+		return nil, err
+	}
+	us := &user.Users{}
+	err = s.collection.Users.FindOneByObjectID(tk.UserRefId, us)
+	if err != nil {
+		return nil, err
+	}
+	log.Println("us:", us)
+	t, err := s.Create(c, us)
+	if err != nil {
 
-	// 	return nil, err
-	// }
-	// return t, nil
+		return nil, err
+	}
+	return t, nil
 
 }
 
@@ -158,7 +222,9 @@ func (s *Service) createRefreshToken(u *user.Users) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(h.Sum(nil)), nil
+	res := hex.EncodeToString(h.Sum(nil))
+	//log.Println("EncodeToString:", res)
+	return res, nil
 }
 
 func (s *Service) verifyToken(tokenStr string) (*jwt.Token, error) {

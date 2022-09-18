@@ -102,7 +102,7 @@ func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
 		return err
 	}
 	us.PasswordHash = password
-	us.Roles = []string{entities.UserRole, entities.AdminRole, entities.GarageRole}
+	us.Roles = []string{entities.UserRole}
 	u := request.fill(us)
 	err = s.collection.Users.Create(u)
 	if err != nil {

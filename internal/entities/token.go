@@ -16,17 +16,28 @@ type Tokens struct {
 }
 
 type TokenResponse struct {
-	AccessToken  *string `json:"access_token"`
-	RefreshToken *string `json:"refresh_token"`
+	AccessToken      *string `json:"access_token"`
+	RefreshToken     *string `json:"refresh_token"`
 	AccessTokenTest  *string `json:"access_token_test"`
 	RefreshTokenTest *string `json:"refresh_token_test"`
 }
 
 type TokenDetails struct {
 	AccessToken  string
-	RefreshToken string
 	AccessUuid   string
+	RefreshToken string
 	RefreshUuid  string
 	AtExpires    int64
 	RtExpires    int64
+}
+type TokenDetailsTest struct {
+	AccessToken           string
+	RefreshToken          string
+	IssuedAt              int64
+	AccessTokenExpiresAt  int64
+	RefreshTokenExpiresAt int64
+	AccessTokenId         string
+	RefreshTokenId        string
+	UserID                *primitive.ObjectID
+	Roles                 []string
 }

@@ -8,8 +8,10 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
+	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	guestEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/guest"
 	tokenEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/token"
+	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/khotchapan/KonLakRod-api/services/test"
 	"github.com/khotchapan/KonLakRod-api/services/user"
 	"github.com/labstack/echo/v4"
@@ -30,11 +32,13 @@ func Router(options *Options) {
 	//===============================================================================
 	// Configure middleware with the custom claims type
 	config := middleware.JWTConfig{
-		Claims:     &coreContext.Claims{},
-		SigningKey: []byte("secret"),
-		SigningMethod:jwt.SigningMethodHS256.Name ,
+		Claims:        &coreContext.Claims{},
+		SigningKey:    []byte("secret"),
+		SigningMethod: jwt.SigningMethodHS256.Name,
 	}
 	checkSessionMiddleware := middleware.JWTWithConfig(config)
+	requiredAdmin := coreMiddleware.RequiredRoles(entities.TestRole)
+
 	//===============================================================================
 	//home
 	e.GET(path.Join("/"), Version)
@@ -49,7 +53,7 @@ func Router(options *Options) {
 	// Unauthenticated route
 	api.GET("/", accessible)
 	// Restricted group
-	r := api.Group("/restricted", checkSessionMiddleware)
+	r := api.Group("/restricted", checkSessionMiddleware, requiredAdmin)
 	{
 		//api.Use(checkSessionMiddleware)
 		r.GET("", restricted)
@@ -68,7 +72,7 @@ func Router(options *Options) {
 	//user
 	users := user.NewHandler(user.NewService(app, collection))
 	usersGroup := api.Group("/users")
-	usersGroup.GET("/me", users.GetMe,checkSessionMiddleware)
+	usersGroup.GET("/me", users.GetMe, checkSessionMiddleware)
 	usersGroup.GET("", users.GetAllUsers)
 	usersGroup.GET("/:id", users.GetOneUsers)
 	usersGroup.POST("", users.PostUsers)
@@ -88,7 +92,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testService.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.5})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.6})
 }
 
 // jwtCustomClaims are custom claims extending default ones.
