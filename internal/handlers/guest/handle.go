@@ -3,7 +3,7 @@ package guest
 import (
 	"net/http"
 
-	"github.com/khotchapan/KonLakRod-api/internal/core/context"
+	"github.com/khotchapan/KonLakRod-api/internal/middleware"
 
 	"github.com/labstack/echo/v4"
 )
@@ -22,7 +22,7 @@ func (h *Handler) LoginUsers(c echo.Context) error {
 	// username := c.FormValue("username")
 	// password := c.FormValue("password")
 	request := &LoginUsersForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return err
 	}

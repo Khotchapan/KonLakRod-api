@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
-	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
+	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
@@ -20,9 +20,9 @@ import (
 )
 
 type UserInterface interface {
-	CallGetMe(c echo.Context) (*user.Users, error)
+	CallGetMe(c echo.Context) (*entities.Users, error)
 	FindAllUsers(c echo.Context, request *user.GetAllUsersForm) (*mongodb.Page, error)
-	FindOneUsers(c echo.Context, request *GetOneUsersForm) (*user.Users, error)
+	FindOneUsers(c echo.Context, request *GetOneUsersForm) (*entities.Users, error)
 	CreateUsers(c echo.Context, request *CreateUsersForm) error
 	UpdateUsers(c echo.Context, request *UpdateUsersForm) error
 	DeleteUsers(c echo.Context, request *DeleteUsersForm) error
@@ -41,10 +41,10 @@ func NewService(app, collection context.Context) *Service {
 		collection: connection.GetCollection(collection, connection.CollectionInit),
 	}
 }
-func (s *Service) CallGetMe(c echo.Context) (*user.Users, error) {
-	response := &user.Users{}
+func (s *Service) CallGetMe(c echo.Context) (*entities.Users, error) {
+	response := &entities.Users{}
 	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*coreContext.Claims)
+	claims := user.Claims.(*coreMiddleware.Claims)
 	log.Println("UserID:", claims.UserID)
 	userID := claims.UserID
 	err := s.collection.Users.FindOneByObjectID(userID, response)
@@ -85,8 +85,8 @@ func (s *Service) FindAllUsers(c echo.Context, request *user.GetAllUsersForm) (*
 	}
 	return response, nil
 }
-func (s *Service) FindOneUsers(c echo.Context, request *GetOneUsersForm) (*user.Users, error) {
-	response := &user.Users{}
+func (s *Service) FindOneUsers(c echo.Context, request *GetOneUsersForm) (*entities.Users, error) {
+	response := &entities.Users{}
 	err := s.collection.Users.FindOneByObjectID(request.ID, response)
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func (s *Service) FindOneUsers(c echo.Context, request *GetOneUsersForm) (*user.
 }
 
 func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
-	us := &user.Users{}
+	us := &entities.Users{}
 	password, err := bcrypt.GeneratePassword(*request.Password)
 	if err != nil {
 		//c.Error(err)
@@ -112,7 +112,7 @@ func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
 }
 
 func (s *Service) UpdateUsers(c echo.Context, request *UpdateUsersForm) error {
-	us := &user.Users{}
+	us := &entities.Users{}
 	err := s.collection.Users.FindOneByObjectID(request.ID, us)
 	if err != nil {
 		return err
@@ -125,7 +125,7 @@ func (s *Service) UpdateUsers(c echo.Context, request *UpdateUsersForm) error {
 	return nil
 }
 func (s *Service) DeleteUsers(c echo.Context, request *DeleteUsersForm) error {
-	u := &user.Users{
+	u := &entities.Users{
 		Model: mongodb.Model{ID: *request.ID},
 	}
 	err := s.collection.Users.Delete(u)

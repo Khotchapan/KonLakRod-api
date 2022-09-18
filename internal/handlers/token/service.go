@@ -6,21 +6,19 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"log"
-	"time"
-
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
-	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
-	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
+	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
+	"time"
 )
 
 type ServiceInterface interface {
-	Create(c echo.Context, u *user.Users) (*entities.TokenResponse, error)
+	Create(c echo.Context, u *entities.Users) (*entities.TokenResponse, error)
 	RefreshToken(c echo.Context, request *RefreshTokenForm) (*entities.TokenResponse, error)
 }
 
@@ -36,7 +34,7 @@ func NewService(app, collection context.Context) *Service {
 	}
 }
 
-func (s *Service) Create(c echo.Context, u *user.Users) (*entities.TokenResponse, error) {
+func (s *Service) Create(c echo.Context, u *entities.Users) (*entities.TokenResponse, error) {
 	token, err := s.createJWTTokenTest(c, u)
 	if err != nil {
 		return nil, err
@@ -44,14 +42,14 @@ func (s *Service) Create(c echo.Context, u *user.Users) (*entities.TokenResponse
 
 	return token, nil
 }
-func (s *Service) createJWTToken(c echo.Context, u *user.Users) (*entities.TokenResponse, error) {
+func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.TokenResponse, error) {
 	rto, err := s.createRefreshToken(u)
 	if err != nil {
 		return nil, err
 	}
 
 	now := time.Now()
-	claims := &coreContext.Claims{}
+	claims := &coreMiddleware.Claims{}
 	claims.Subject = "access_token"
 	claims.Issuer = "KonLakRod"
 	claims.IssuedAt = now.Unix()
@@ -106,7 +104,7 @@ func (s *Service) createJWTToken(c echo.Context, u *user.Users) (*entities.Token
 
 	return tkr, nil
 }
-func (s *Service) createJWTTokenTest(c echo.Context, u *user.Users) (*entities.TokenResponse, error) {
+func (s *Service) createJWTTokenTest(c echo.Context, u *entities.Users) (*entities.TokenResponse, error) {
 	now := time.Now()
 	tokenDetailsTest := &entities.TokenDetailsTest{}
 	tokenDetailsTest.IssuedAt = now.Unix()
@@ -115,7 +113,7 @@ func (s *Service) createJWTTokenTest(c echo.Context, u *user.Users) (*entities.T
 	tokenDetailsTest.AccessTokenId = uuid.New().String()
 	tokenDetailsTest.RefreshTokenId = uuid.New().String()
 
-	claims := &coreContext.Claims{}
+	claims := &coreMiddleware.Claims{}
 	claims.Subject = "access_token"
 	claims.Issuer = "KonLakRod"
 	claims.IssuedAt = tokenDetailsTest.IssuedAt
@@ -200,7 +198,7 @@ func (s *Service) RefreshToken(c echo.Context, request *RefreshTokenForm) (*enti
 	if err != nil {
 		return nil, err
 	}
-	us := &user.Users{}
+	us := &entities.Users{}
 	err = s.collection.Users.FindOneByObjectID(tk.UserRefId, us)
 	if err != nil {
 		return nil, err
@@ -215,7 +213,7 @@ func (s *Service) RefreshToken(c echo.Context, request *RefreshTokenForm) (*enti
 
 }
 
-func (s *Service) createRefreshToken(u *user.Users) (string, error) {
+func (s *Service) createRefreshToken(u *entities.Users) (string, error) {
 	rts := fmt.Sprintf("%d%s", u.ID, time.Now().String())
 	h := sha1.New()
 	_, err := h.Write([]byte(rts))

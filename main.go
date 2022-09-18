@@ -6,7 +6,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/joho/godotenv"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
-	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
+	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
 	users "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	tokens "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
 	coreValidator "github.com/khotchapan/KonLakRod-api/internal/core/validator"
@@ -66,7 +66,7 @@ func initEcho() *echo.Echo {
 	// e.HideBanner = true
 	e.Validator = coreValidator.NewValidator(validator.New())
 	// Middleware
-	e.Use(coreContext.SetCustomContext)
+	e.Use(coreMiddleware.SetCustomContext)
 	e.Use(middleware.Logger())    // Log everything to stdout
 	e.Use(middleware.Recover())   // Recover from all panics to always have your server up
 	e.Use(middleware.RequestID()) // Generate a request id on the HTTP response headers for identification

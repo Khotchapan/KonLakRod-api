@@ -3,7 +3,7 @@ package token
 import (
 	"net/http"
 
-	"github.com/khotchapan/KonLakRod-api/internal/core/context"
+	"github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,7 +19,7 @@ func NewHandler(service ServiceInterface) *Handler {
 }
 func (h *Handler) RefreshToken(c echo.Context) error {
 	request := &RefreshTokenForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return err
 	}

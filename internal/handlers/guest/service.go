@@ -4,10 +4,8 @@ import (
 	"context"
 	"errors"
 	"log"
-
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
-	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/khotchapan/KonLakRod-api/internal/handlers/token"
 	"github.com/labstack/echo/v4"
@@ -33,7 +31,7 @@ func NewService(app, collection context.Context) *Service {
 }
 
 func (s *Service) LoginUsers(c echo.Context, request *LoginUsersForm) (*entities.TokenResponse, error) {
-	us := &user.Users{}
+	us := &entities.Users{}
 	err := s.collection.Users.FindOneByName(request.Username, us)
 	if err != nil {
 		return nil, err

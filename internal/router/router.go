@@ -7,13 +7,12 @@ import (
 	"path"
 
 	"github.com/golang-jwt/jwt"
-	coreContext "github.com/khotchapan/KonLakRod-api/internal/core/context"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	guestEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/guest"
 	tokenEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/token"
 	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
-	"github.com/khotchapan/KonLakRod-api/services/test"
-	"github.com/khotchapan/KonLakRod-api/services/user"
+	"github.com/khotchapan/KonLakRod-api/internal/handlers/user"
+	"github.com/khotchapan/KonLakRod-api/internal/handlers/test"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -32,7 +31,7 @@ func Router(options *Options) {
 	//===============================================================================
 	// Configure middleware with the custom claims type
 	config := middleware.JWTConfig{
-		Claims:        &coreContext.Claims{},
+		Claims:        &coreMiddleware.Claims{},
 		SigningKey:    []byte("secret"),
 		SigningMethod: jwt.SigningMethodHS256.Name,
 	}
@@ -92,7 +91,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testService.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.6})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.7})
 }
 
 // jwtCustomClaims are custom claims extending default ones.
@@ -112,7 +111,7 @@ func accessible(c echo.Context) error {
 
 func restricted(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*coreContext.Claims)
+	claims := user.Claims.(*coreMiddleware.Claims)
 	name := claims.Subject
 	return c.String(http.StatusOK, "Welcome "+name+"!")
 }

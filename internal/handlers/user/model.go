@@ -2,8 +2,7 @@ package user
 
 import (
 	"mime/multipart"
-
-	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -21,7 +20,7 @@ type CreateUsersForm struct {
 	PhoneNumber *string `json:"phone_number"`
 }
 
-func (f *CreateUsersForm) fill(data *user.Users) *user.Users {
+func (f *CreateUsersForm) fill(data *entities.Users) *entities.Users {
 	if f.FirstName != nil {
 		data.FirstName = *f.FirstName
 	}
@@ -52,7 +51,7 @@ type UpdateUsersForm struct {
 	PhoneNumber *string             `json:"phone_number"`
 }
 
-func (f *UpdateUsersForm) fill(data *user.Users) *user.Users {
+func (f *UpdateUsersForm) fill(data *entities.Users) *entities.Users {
 	if f.ID != nil {
 		data.ID = *f.ID
 	}

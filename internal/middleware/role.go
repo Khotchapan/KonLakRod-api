@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"github.com/khotchapan/KonLakRod-api/internal/core/context"
 	"github.com/labstack/echo/v4"
 )
 
@@ -11,7 +10,7 @@ func RequiredRoles(roles ...string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			//do the things
-			claims := c.(*context.CustomContext).GetClaims()
+			claims := c.(*CustomContext).GetClaims()
 			tokenRole := claims.Roles
 			for _, roleRequired := range roles {
 				for _, userRole := range tokenRole {

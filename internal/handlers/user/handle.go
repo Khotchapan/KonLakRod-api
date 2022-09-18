@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/khotchapan/KonLakRod-api/internal/core/context"
+	"github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
@@ -27,7 +27,7 @@ func (h *Handler) GetMe(c echo.Context) error {
 }
 func (h *Handler) GetAllUsers(c echo.Context) error {
 	request := &user.GetAllUsersForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		//return echo.NewHTTPError(http.StatusBadRequest, err)
 		return c.JSON(http.StatusBadRequest, err)
@@ -44,7 +44,7 @@ func (h *Handler) GetAllUsers(c echo.Context) error {
 
 func (h *Handler) GetOneUsers(c echo.Context) error {
 	request := &GetOneUsersForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -57,7 +57,7 @@ func (h *Handler) GetOneUsers(c echo.Context) error {
 
 func (h *Handler) PostUsers(c echo.Context) error {
 	request := &CreateUsersForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -70,7 +70,7 @@ func (h *Handler) PostUsers(c echo.Context) error {
 }
 func (h *Handler) PutUsers(c echo.Context) error {
 	request := &UpdateUsersForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -84,7 +84,7 @@ func (h *Handler) PutUsers(c echo.Context) error {
 
 func (h *Handler) DeleteUsers(c echo.Context) error {
 	request := &DeleteUsersForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

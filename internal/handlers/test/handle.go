@@ -3,7 +3,7 @@ package test
 import (
 	"net/http"
 
-	"github.com/khotchapan/KonLakRod-api/internal/core/context"
+	"github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"github.com/labstack/echo/v4"
@@ -35,7 +35,7 @@ func (h *Handler) GetFile(c echo.Context) error {
 
 func (h *Handler) GetOneGoogleCloudBooks(c echo.Context) error {
 	request := &GetOneGoogleCloudBooksForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -48,7 +48,7 @@ func (h *Handler) GetOneGoogleCloudBooks(c echo.Context) error {
 
 func (h *Handler) PostGoogleCloudBooks(c echo.Context) error {
 	request := &googleCloud.CreateBooksForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -64,7 +64,7 @@ func (h *Handler) PostGoogleCloudBooks(c echo.Context) error {
 
 func (h *Handler) PutBooks(c echo.Context) error {
 	request := &googleCloud.UpdateBooksForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -78,7 +78,7 @@ func (h *Handler) PutBooks(c echo.Context) error {
 
 func (h *Handler) DeleteBooks(c echo.Context) error {
 	request := &googleCloud.DeleteUsersForm{}
-	cc := c.(*context.CustomContext)
+	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
