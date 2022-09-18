@@ -19,7 +19,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type UserInterface interface {
+type ServiceInterface interface {
 	CallGetMe(c echo.Context) (*entities.Users, error)
 	FindAllUsers(c echo.Context, request *user.GetAllUsersForm) (*mongodb.Page, error)
 	FindOneUsers(c echo.Context, request *GetOneUsersForm) (*entities.Users, error)

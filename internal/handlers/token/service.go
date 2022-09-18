@@ -35,14 +35,14 @@ func NewService(app, collection context.Context) *Service {
 }
 
 func (s *Service) Create(c echo.Context, u *entities.Users) (*entities.TokenResponse, error) {
-	token, err := s.createJWTTokenTest(c, u)
+	token, err := s.createJWTToken(c, u)
 	if err != nil {
 		return nil, err
 	}
 
 	return token, nil
 }
-func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.TokenResponse, error) {
+func (s *Service) createJWTTokenTest(c echo.Context, u *entities.Users) (*entities.TokenResponse, error) {
 	rto, err := s.createRefreshToken(u)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,6 @@ func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.T
 	claims.Id = uuid.New().String()
 	claims.UserID = &u.ID
 	claims.Roles = u.Roles
-	claims.User = u
 	// Create token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Generate encoded token and send it as response.
@@ -98,18 +97,18 @@ func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.T
 	tkr := &entities.TokenResponse{
 		AccessToken:      &t,
 		RefreshToken:     &rto,
-		AccessTokenTest:  &td.AccessToken,
-		RefreshTokenTest: &td.RefreshToken,
+		// AccessTokenTest:  &td.AccessToken,
+		// RefreshTokenTest: &td.RefreshToken,
 	}
 
 	return tkr, nil
 }
-func (s *Service) createJWTTokenTest(c echo.Context, u *entities.Users) (*entities.TokenResponse, error) {
+func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.TokenResponse, error) {
 	now := time.Now()
 	tokenDetailsTest := &entities.TokenDetailsTest{}
 	tokenDetailsTest.IssuedAt = now.Unix()
-	tokenDetailsTest.AccessTokenExpiresAt = now.Add(time.Hour * 24).Unix()
-	tokenDetailsTest.RefreshTokenExpiresAt = time.Now().Add(time.Hour * 24 * 7).Unix()
+	tokenDetailsTest.AccessTokenExpiresAt = now.Add(time.Hour * 1).Unix()
+	tokenDetailsTest.RefreshTokenExpiresAt = time.Now().Add(time.Hour * 24 * 14).Unix()
 	tokenDetailsTest.AccessTokenId = uuid.New().String()
 	tokenDetailsTest.RefreshTokenId = uuid.New().String()
 
@@ -121,7 +120,6 @@ func (s *Service) createJWTTokenTest(c echo.Context, u *entities.Users) (*entiti
 	claims.Id = tokenDetailsTest.AccessTokenId
 	claims.UserID = &u.ID
 	claims.Roles = u.Roles
-	claims.User = u
 	// Create token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Generate encoded token and send it as response.
@@ -141,7 +139,6 @@ func (s *Service) createJWTTokenTest(c echo.Context, u *entities.Users) (*entiti
 	rtClaims["jti"] = tokenDetailsTest.RefreshTokenId
 	rtClaims["user_id"] = &u.ID
 	rtClaims["roles"] = u.Roles
-	rtClaims["user"] = u
 	refreshToken, err := rtToken.SignedString([]byte("secret"))
 	if err != nil {
 		return nil, err
@@ -160,8 +157,6 @@ func (s *Service) createJWTTokenTest(c echo.Context, u *entities.Users) (*entiti
 	tkr := &entities.TokenResponse{
 		AccessToken:      &tokenDetailsTest.AccessToken,
 		RefreshToken:     &tokenDetailsTest.RefreshToken,
-		AccessTokenTest:  nil,
-		RefreshTokenTest: nil,
 	}
 
 	return tkr, nil

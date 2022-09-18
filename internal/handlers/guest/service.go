@@ -18,7 +18,6 @@ type ServiceInterface interface {
 type Service struct {
 	con        *connection.Connection
 	collection *connection.Collection
-	//tokenService *token.Service
 	tokenService token.ServiceInterface
 }
 

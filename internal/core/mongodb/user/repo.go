@@ -12,7 +12,7 @@ const (
 	collectionName = "users"
 )
 
-type UsersInterface interface {
+type RepoInterface interface {
 	Create(i interface{}) error
 	Update(i interface{}) error
 	Delete(i interface{}) error

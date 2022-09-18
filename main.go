@@ -49,13 +49,9 @@ func main() {
 	if port == "" {
 		port = "80" // Default port if not specified
 	}
-	//========================================================
-
-	//========================================================
 	address := fmt.Sprintf("%s:%s", "0.0.0.0", port)
 	fmt.Println("address:", address)
 	e.Logger.Fatal(e.Start(address))
-
 }
 
 func initEcho() *echo.Echo {
@@ -64,6 +60,7 @@ func initEcho() *echo.Echo {
 	// e.HidePort = false
 	// e.Debug = false
 	// e.HideBanner = true
+	//validator
 	e.Validator = coreValidator.NewValidator(validator.New())
 	// Middleware
 	e.Use(coreMiddleware.SetCustomContext)
@@ -98,6 +95,5 @@ func newMongoDB() (*mongo.Database, context.Context) {
 		log.Fatal(err)
 	}
 	fmt.Println("Connected to MongoDB")
-	//return client
 	return client.Database("konlakrod"), ctx
 }

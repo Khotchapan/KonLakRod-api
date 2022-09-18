@@ -2,17 +2,16 @@ package router
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"path"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
-	guestEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/guest"
-	tokenEndpoint "github.com/khotchapan/KonLakRod-api/internal/handlers/token"
+	guestHandler "github.com/khotchapan/KonLakRod-api/internal/handlers/guest"
+	testHandler "github.com/khotchapan/KonLakRod-api/internal/handlers/test"
+	tokenHandler "github.com/khotchapan/KonLakRod-api/internal/handlers/token"
+	userHandler "github.com/khotchapan/KonLakRod-api/internal/handlers/user"
 	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
-	"github.com/khotchapan/KonLakRod-api/internal/handlers/user"
-	"github.com/khotchapan/KonLakRod-api/internal/handlers/test"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -27,7 +26,6 @@ func Router(options *Options) {
 	app := options.App
 	collection := options.Collection
 	e := options.Echo
-
 	//===============================================================================
 	// Configure middleware with the custom claims type
 	config := middleware.JWTConfig{
@@ -36,8 +34,9 @@ func Router(options *Options) {
 		SigningMethod: jwt.SigningMethodHS256.Name,
 	}
 	checkSessionMiddleware := middleware.JWTWithConfig(config)
-	requiredAdmin := coreMiddleware.RequiredRoles(entities.TestRole)
-
+	//requiredUser := coreMiddleware.RequiredRoles(entities.UserRole)
+	requiredAdmin := coreMiddleware.RequiredRoles(entities.AdminRole)
+	//requiredGarage := coreMiddleware.RequiredRoles(entities.GarageRole)
 	//===============================================================================
 	//home
 	e.GET(path.Join("/"), Version)
@@ -57,55 +56,46 @@ func Router(options *Options) {
 		//api.Use(checkSessionMiddleware)
 		r.GET("", restricted)
 	}
-	guest := guestEndpoint.NewHandler(guestEndpoint.NewService(app, collection))
+	//guest
+	guestEndpoint := guestHandler.NewHandler(guestHandler.NewService(app, collection))
 	guestGroup := api.Group("/guest")
 	{
-		guestGroup.POST("/login", guest.LoginUsers)
+		guestGroup.POST("/login", guestEndpoint.LoginUsers)
 	}
-	token := tokenEndpoint.NewHandler(tokenEndpoint.NewService(app, collection))
-	tokens := api.Group("/tokens")
+	//token
+	tokenEndpoint := tokenHandler.NewHandler(tokenHandler.NewService(app, collection))
+	tokensGroup := api.Group("/tokens")
 	{
-		tokens.POST("/refreshToken", token.RefreshToken)
+		tokensGroup.POST("/refreshToken", tokenEndpoint.RefreshToken)
 	}
 
 	//user
-	users := user.NewHandler(user.NewService(app, collection))
+	usersEndpoint := userHandler.NewHandler(userHandler.NewService(app, collection))
 	usersGroup := api.Group("/users")
-	usersGroup.GET("/me", users.GetMe, checkSessionMiddleware)
-	usersGroup.GET("", users.GetAllUsers)
-	usersGroup.GET("/:id", users.GetOneUsers)
-	usersGroup.POST("", users.PostUsers)
-	usersGroup.PUT("", users.PutUsers)
-	usersGroup.DELETE("", users.DeleteUsers)
-	usersGroup.POST("/upload", users.UploadFile)
-	usersGroup.POST("/image/upload", users.UploadFileUsers)
+	usersGroup.GET("/me", usersEndpoint.GetMe, checkSessionMiddleware)
+	usersGroup.GET("", usersEndpoint.GetAllUsers)
+	usersGroup.GET("/:id", usersEndpoint.GetOneUsers)
+	usersGroup.POST("", usersEndpoint.PostUsers)
+	usersGroup.PUT("", usersEndpoint.PutUsers)
+	usersGroup.DELETE("", usersEndpoint.DeleteUsers)
+	usersGroup.POST("/upload", usersEndpoint.UploadFile)
+	usersGroup.POST("/image/upload", usersEndpoint.UploadFileUsers)
 
 	// test zone
-	testService := test.NewHandler(test.NewService(app, collection))
+	testEndpoint := testHandler.NewHandler(testHandler.NewService(app, collection))
 	testGroup := api.Group("/tests")
-	testGroup.GET("/google-cloud/books", testService.GetFile)
-	testGroup.GET("/google-cloud/books/:id", testService.GetOneGoogleCloudBooks)
-	testGroup.POST("/google-cloud/books", testService.PostGoogleCloudBooks)
-	testGroup.PUT("/google-cloud/books", testService.PutBooks)
-	testGroup.DELETE("/google-cloud/books", testService.DeleteBooks)
-	testGroup.POST("/google-cloud/image/upload", testService.UploadImage)
+	testGroup.GET("/google-cloud/books", testEndpoint.GetFile)
+	testGroup.GET("/google-cloud/books/:id", testEndpoint.GetOneGoogleCloudBooks)
+	testGroup.POST("/google-cloud/books", testEndpoint.PostGoogleCloudBooks)
+	testGroup.PUT("/google-cloud/books", testEndpoint.PutBooks)
+	testGroup.DELETE("/google-cloud/books", testEndpoint.DeleteBooks)
+	testGroup.POST("/google-cloud/image/upload", testEndpoint.UploadImage)
 }
 func Version(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.7})
 }
 
-// jwtCustomClaims are custom claims extending default ones.
-// See https://github.com/golang-jwt/jwt for more examples
-type jwtCustomClaims struct {
-	Name  string `json:"name"`
-	Admin bool   `json:"admin"`
-	jwt.StandardClaims
-}
-
 func accessible(c echo.Context) error {
-	var mystring = jwt.SigningMethodHS256.Name
-	var mystring2 = jwt.SigningMethodHS256.Alg()
-	fmt.Printf("%s \n %s", mystring, mystring2)
 	return c.String(http.StatusOK, "Accessible")
 }
 
@@ -113,5 +103,5 @@ func restricted(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*coreMiddleware.Claims)
 	name := claims.Subject
-	return c.String(http.StatusOK, "Welcome "+name+"!")
+	return c.String(http.StatusOK, "Welcome:"+name+":!")
 }

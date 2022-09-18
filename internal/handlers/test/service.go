@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type TestInterface interface {
+type ServiceInterface interface {
 	FindAllBooks(c echo.Context) ([]*googleCloud.Books, error)
 	FindOneBooks(c echo.Context, request *GetOneGoogleCloudBooksForm) ([]*googleCloud.Books, error)
 	CreateBooks(c echo.Context, request *googleCloud.CreateBooksForm) error

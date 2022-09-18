@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"github.com/golang-jwt/jwt"
-	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -62,7 +61,6 @@ type Claims struct {
 	jwt.StandardClaims
 	RefreshTokenID string              `json:"refresh_token"`
 	Roles          []string            `json:"roles"`
-	User           *entities.Users     `json:"user"`
 	UserID         *primitive.ObjectID `json:"user_id"`
 }
 

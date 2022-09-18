@@ -22,7 +22,7 @@ type Connection struct {
 }
 
 type Collection struct {
-	Users  user.UsersInterface
+	Users  user.RepoInterface
 	Tokens token.RepoInterface
 }
 
