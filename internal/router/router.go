@@ -78,7 +78,6 @@ func Router(options *Options) {
 	usersGroup.POST("", usersEndpoint.PostUsers)
 	usersGroup.PUT("", usersEndpoint.PutUsers)
 	usersGroup.DELETE("", usersEndpoint.DeleteUsers)
-	usersGroup.POST("/upload", usersEndpoint.UploadFile)
 	usersGroup.POST("/image/upload", usersEndpoint.UploadFileUsers)
 
 	// test zone
@@ -92,7 +91,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testEndpoint.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.7})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.8})
 }
 
 func accessible(c echo.Context) error {

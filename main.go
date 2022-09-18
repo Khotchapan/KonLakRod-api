@@ -3,22 +3,23 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"time"
+
 	"github.com/go-playground/validator"
 	"github.com/joho/godotenv"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
-	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
-	users "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	tokens "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
+	users "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
 	coreValidator "github.com/khotchapan/KonLakRod-api/internal/core/validator"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
+	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/khotchapan/KonLakRod-api/internal/router"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"os"
-	"time"
 )
 
 func main() {
@@ -34,7 +35,7 @@ func main() {
 		})
 	collection := context.WithValue(context.Background(), connection.CollectionInit,
 		connection.Collection{
-			Users: users.NewRepo(dbMonggo),
+			Users:  users.NewRepo(dbMonggo),
 			Tokens: tokens.NewRepo(dbMonggo),
 		})
 	options := &router.Options{
@@ -60,7 +61,7 @@ func initEcho() *echo.Echo {
 	// e.HidePort = false
 	// e.Debug = false
 	// e.HideBanner = true
-	//validator
+	//Validator
 	e.Validator = coreValidator.NewValidator(validator.New())
 	// Middleware
 	e.Use(coreMiddleware.SetCustomContext)

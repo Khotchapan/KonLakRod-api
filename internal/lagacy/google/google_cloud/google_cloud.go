@@ -26,7 +26,6 @@ import (
 type IGCS interface {
 	UploadFile(file multipart.File, path string) (string, error)
 	GetBucketName() string
-	UploadFilePrivate(file multipart.File, path string) (string, error)
 	UploadFileUsers(request *UploadForm) (*ImageStructure, error)
 	SignedURL(object string) (string, error)
 	FindAllBooks() ([]*Books, error)
@@ -89,25 +88,6 @@ func (g *GoogleCloudStorage) UploadFile(file multipart.File, path string) (strin
 
 	rObj := g.cl.Bucket(g.bucketName).Object(obj)
 	return fmt.Sprintf("%s/%s/%s", viper.GetString("gcs.baseURL"), rObj.BucketName(), rObj.ObjectName()), nil
-}
-
-func (g *GoogleCloudStorage) UploadFilePrivate(file multipart.File, path string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
-	defer cancel()
-
-	obj := g.basePath + path
-
-	wc := g.cl.Bucket(g.bucketName).Object(obj).NewWriter(ctx)
-	if _, err := io.Copy(wc, file); err != nil {
-		return "", fmt.Errorf("io.Copy: %v", err)
-	}
-
-	if err := wc.Close(); err != nil {
-		return "", fmt.Errorf("Writer.Close: %v", err)
-	}
-
-	rObj := g.cl.Bucket(g.bucketName).Object(obj)
-	return rObj.ObjectName(), nil
 }
 
 func (g *GoogleCloudStorage) GetBucketName() string {
