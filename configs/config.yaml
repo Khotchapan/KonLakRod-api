@@ -1,0 +1,6 @@
+app:
+  env:  "development"
+  port: 8080
+
+MONGO:
+  HOST: "mongodb+srv://admin:1234@cluster0.6phd9zm.mongodb.net/?retryWrites=true&w=majority"

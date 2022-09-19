@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-playground/validator"
@@ -18,11 +19,29 @@ import (
 	"github.com/khotchapan/KonLakRod-api/internal/router"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func initViper() {
+
+	viper.AddConfigPath("configs")                         // ระบุ path ของ config file
+	viper.SetConfigName("config")                          // ชื่อ config file
+	viper.AutomaticEnv()                                   // อ่าน value จาก ENV variable
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_")) // แปลง _ underscore ใน env เป็น . dot notation ใน viper
+	// อ่าน config
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("cannot read in viper config:%s", err)
+	}
+}
+func init() {
+	log.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+	initViper()
+	log.Println(viper.Get("app.env"))
+}
 func main() {
+	log.Println("###################################################################################################")
 	var (
 		e           = initEcho()
 		dbMonggo, _ = newMongoDB()
@@ -76,8 +95,9 @@ func newMongoDB() (*mongo.Database, context.Context) {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	EnvMongoURI := os.Getenv("MONGOURI")
-	fmt.Println("EnvMongoURI", EnvMongoURI)
+	//EnvMongoURI := os.Getenv("MONGOURI")
+	EnvMongoURI := viper.GetString("MONGO.HOST")
+	//log.Println("EnvMongoURI", EnvMongoURI)
 	client, err := mongo.NewClient(options.Client().ApplyURI(EnvMongoURI))
 	if err != nil {
 		log.Fatal(err)
