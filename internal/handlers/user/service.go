@@ -15,6 +15,7 @@ import (
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ServiceInterface interface {
@@ -93,6 +94,15 @@ func (s *Service) FindOneUsers(c echo.Context, request *GetOneUsersForm) (*entit
 
 func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
 	us := &entities.Users{}
+	response := &entities.Users{}
+	err := s.collection.Users.FindOneByUserName(request.Username, response)
+	if err != nil {
+		// ErrNoDocuments means that the filter did not match any documents in the collection
+		if err == mongo.ErrNoDocuments {
+			return errors.New("error no documents")
+		}
+		return err
+	}
 	password, err := bcrypt.GeneratePassword(*request.Password)
 	if err != nil {
 		//c.Error(err)

@@ -17,7 +17,7 @@ type RepoInterface interface {
 	Update(i interface{}) error
 	Delete(i interface{}) error
 	FindAllUsers(request *GetAllUsersForm) (*mongodb.Page, error)
-	FindOneByName(name *string, i interface{}) error
+	FindOneByUserName(name *string, i interface{}) error
 	FindOneByObjectID(oid *primitive.ObjectID, i interface{}) error
 	FindOneByID(id string, i interface{}) error
 }
@@ -78,7 +78,7 @@ func (r *Repo) FindAllUsers(f *GetAllUsersForm) (*mongodb.Page, error) {
 	}
 	return response, err
 }
-func (r *Repo) FindOneByName(name *string, i interface{}) error {
+func (r *Repo) FindOneByUserName(name *string, i interface{}) error {
 	log.Println("name:", *name)
 	err := r.FindOneByPrimitiveM(primitive.M{
 		"deleted_at": primitive.M{

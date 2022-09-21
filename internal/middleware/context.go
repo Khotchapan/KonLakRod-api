@@ -59,7 +59,6 @@ const (
 // Claims jwt claims
 type Claims struct {
 	jwt.StandardClaims
-	RefreshTokenID string              `json:"refresh_token"`
 	Roles          []string            `json:"roles"`
 	UserID         *primitive.ObjectID `json:"user_id"`
 }

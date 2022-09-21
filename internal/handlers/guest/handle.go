@@ -19,8 +19,6 @@ func NewHandler(service ServiceInterface) *Handler {
 	}
 }
 func (h *Handler) LoginUsers(c echo.Context) error {
-	// username := c.FormValue("username")
-	// password := c.FormValue("password")
 	request := &LoginUsersForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {

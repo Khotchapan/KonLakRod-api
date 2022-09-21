@@ -31,7 +31,7 @@ func NewService(app, collection context.Context) *Service {
 
 func (s *Service) LoginUsers(c echo.Context, request *LoginUsersForm) (*entities.TokenResponse, error) {
 	us := &entities.Users{}
-	err := s.collection.Users.FindOneByName(request.Username, us)
+	err := s.collection.Users.FindOneByUserName(request.Username, us)
 	if err != nil {
 		return nil, err
 	}

@@ -137,8 +137,8 @@ func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.T
 	rtClaims["iat"] = tokenDetailsTest.IssuedAt
 	rtClaims["exp"] = tokenDetailsTest.RefreshTokenExpiresAt
 	rtClaims["jti"] = tokenDetailsTest.RefreshTokenId
-	rtClaims["user_id"] = &u.ID
-	rtClaims["roles"] = u.Roles
+	//rtClaims["user_id"] = &u.ID
+	//rtClaims["roles"] = u.Roles
 	refreshToken, err := rtToken.SignedString([]byte("secret"))
 	if err != nil {
 		return nil, err
@@ -185,9 +185,12 @@ func (s *Service) RefreshToken(c echo.Context, request *RefreshTokenForm) (*enti
 	log.Println("request.RefreshToken:", *request.RefreshToken)
 	err = s.collection.Tokens.FindOneByRefreshToken(request.RefreshToken, tk)
 	log.Println("tk:", tk)
-	if err != nil && err != mongo.ErrNoDocuments {
+	if err != nil {
 		// ErrNoDocuments means that the filter did not match any documents in the collection
-		return nil, errors.New("error no documents")
+		if err == mongo.ErrNoDocuments {
+			return nil,errors.New("error no documents")
+		}
+		return nil,err
 	}
 	err = s.collection.Tokens.Delete(tk)
 	if err != nil {

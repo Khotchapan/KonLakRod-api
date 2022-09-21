@@ -34,7 +34,7 @@ func Router(options *Options) {
 		SigningMethod: jwt.SigningMethodHS256.Name,
 	}
 	checkSessionMiddleware := middleware.JWTWithConfig(config)
-	//requiredUser := coreMiddleware.RequiredRoles(entities.UserRole)
+	requiredUser := coreMiddleware.RequiredRoles(entities.UserRole)
 	requiredAdmin := coreMiddleware.RequiredRoles(entities.AdminRole)
 	//requiredGarage := coreMiddleware.RequiredRoles(entities.GarageRole)
 	//===============================================================================
@@ -72,7 +72,7 @@ func Router(options *Options) {
 	//user
 	usersEndpoint := userHandler.NewHandler(userHandler.NewService(app, collection))
 	usersGroup := api.Group("/users")
-	usersGroup.GET("/me", usersEndpoint.GetMe, checkSessionMiddleware)
+	usersGroup.GET("/me", usersEndpoint.GetMe, checkSessionMiddleware, requiredUser)
 	usersGroup.GET("", usersEndpoint.GetAllUsers)
 	usersGroup.GET("/:id", usersEndpoint.GetOneUsers)
 	usersGroup.POST("", usersEndpoint.PostUsers)
@@ -91,7 +91,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testEndpoint.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.9})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.10})
 }
 
 func accessible(c echo.Context) error {
