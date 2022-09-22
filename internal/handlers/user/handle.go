@@ -19,6 +19,7 @@ func NewHandler(service ServiceInterface) *Handler {
 		service: service,
 	}
 }
+
 func (h *Handler) GetMe(c echo.Context) error {
 	response, err := h.service.CallGetMe(c)
 	if err != nil {
@@ -26,6 +27,7 @@ func (h *Handler) GetMe(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, response)
 }
+
 func (h *Handler) GetAllUsers(c echo.Context) error {
 	request := &user.GetAllUsersForm{}
 	cc := c.(*middleware.CustomContext)
@@ -56,7 +58,7 @@ func (h *Handler) GetOneUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func (h *Handler) PostUsers(c echo.Context) error {
+func (h *Handler) CreateUsers(c echo.Context) error {
 	request := &CreateUsersForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
@@ -69,7 +71,7 @@ func (h *Handler) PostUsers(c echo.Context) error {
 	response := &mongodb.Response{}
 	return c.JSON(http.StatusOK, response.SuccessfulCreated())
 }
-func (h *Handler) PutUsers(c echo.Context) error {
+func (h *Handler) UpdateUsers(c echo.Context) error {
 	request := &UpdateUsersForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {

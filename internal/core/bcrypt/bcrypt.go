@@ -2,11 +2,9 @@ package bcrypt
 
 import (
 	"golang.org/x/crypto/bcrypt"
-	"log"
 )
 
 func ComparePassword(password, hash string) bool {
-	log.Println("ComparePassword")
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }

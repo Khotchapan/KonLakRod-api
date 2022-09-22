@@ -19,7 +19,6 @@ func RequiredRoles(roles ...string) echo.MiddlewareFunc {
 					}
 				}
 			}
-			//return next(c)
 			return echo.ErrUnauthorized
 		}
 

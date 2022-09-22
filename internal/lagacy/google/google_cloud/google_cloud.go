@@ -1,29 +1,28 @@
 package googleCloud
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"io"
-	"log"
-	"mime/multipart"
-	"strconv"
-	"strings"
-	"time"
-
 	"cloud.google.com/go/firestore"
 	"cloud.google.com/go/storage"
 	cloud "cloud.google.com/go/storage"
+	"context"
+	"errors"
 	firebase "firebase.google.com/go"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
+	"io"
+	"log"
+	"mime/multipart"
+	"strconv"
+	"strings"
+	"time"
 )
 
-type IGCS interface {
+type GoogleCloudInterface interface {
 	UploadFile(file multipart.File, path string) (string, error)
 	GetBucketName() string
 	UploadFileUsers(request *UploadForm) (*ImageStructure, error)
@@ -45,7 +44,7 @@ type GoogleCloudStorage struct {
 	basePath   string
 }
 
-func NewGoogleCloudStorage(db *mongo.Database) IGCS {
+func NewGoogleCloudStorage(db *mongo.Database) GoogleCloudInterface {
 	key := option.WithCredentialsFile("internal/env/firebase_secret_key.json")
 	app, err := firebase.NewApp(context.Background(), nil, key)
 	if err != nil {

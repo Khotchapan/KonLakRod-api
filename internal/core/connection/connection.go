@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	postTopic "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_topic"
+	postReply "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_reply"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
@@ -15,15 +17,15 @@ const (
 )
 
 type Connection struct {
-	Monggo *mongo.Database
-	// AzureRoom       azure.AzureInterface
-	// PhramcareClient phramcareClient.PhramcareSendInterface
-	GCS googleCloud.IGCS
+	Mongo *mongo.Database
+	GCS googleCloud.GoogleCloudInterface
 }
 
 type Collection struct {
 	Users  user.RepoInterface
 	Tokens token.RepoInterface
+	PostTopic postTopic.RepoInterface
+	PostReply postReply.RepoInterface
 }
 
 func GetConnect(ctx context.Context, k string) *Connection {

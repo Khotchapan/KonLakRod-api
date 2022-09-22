@@ -49,8 +49,8 @@ func main() {
 	)
 	app := context.WithValue(context.Background(), connection.ConnectionInit,
 		connection.Connection{
-			Monggo: dbMonggo,
-			GCS:    gcs,
+			Mongo: dbMonggo,
+			GCS:   gcs,
 		})
 	collection := context.WithValue(context.Background(), connection.CollectionInit,
 		connection.Collection{

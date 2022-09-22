@@ -3,7 +3,7 @@ package guest
 import (
 	"context"
 	"errors"
-	"log"
+
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
@@ -16,8 +16,8 @@ type ServiceInterface interface {
 }
 
 type Service struct {
-	con        *connection.Connection
-	collection *connection.Collection
+	con          *connection.Connection
+	collection   *connection.Collection
 	tokenService token.ServiceInterface
 }
 
@@ -36,7 +36,6 @@ func (s *Service) LoginUsers(c echo.Context, request *LoginUsersForm) (*entities
 		return nil, err
 	}
 	if !bcrypt.ComparePassword(*request.Password, us.PasswordHash) {
-		log.Println("check")
 		return nil, errors.New("password is incorrect")
 	}
 	token, err := s.tokenService.Create(c, us)

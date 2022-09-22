@@ -2,14 +2,13 @@ package mongodb
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"math"
 	"reflect"
 	"sync"
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func DB(mongo *mongo.Database) *mongo.Database {
@@ -23,7 +22,7 @@ type Repo struct {
 
 func (r *Repo) Create(i interface{}) error {
 	rt := reflect.TypeOf(i)
-	print(rt.Kind())
+	//print(rt.Kind())
 	switch rt.Kind() {
 	case reflect.Slice, reflect.Array:
 		return r.createMany(i)

@@ -15,7 +15,6 @@ type Handler struct {
 func NewHandler(service ServiceInterface) *Handler {
 	return &Handler{
 		service: service,
-		//service: NewService(c),
 	}
 }
 func (h *Handler) LoginUsers(c echo.Context) error {

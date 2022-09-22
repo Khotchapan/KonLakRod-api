@@ -46,7 +46,7 @@ func (h *Handler) GetOneGoogleCloudBooks(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func (h *Handler) PostGoogleCloudBooks(c echo.Context) error {
+func (h *Handler) CreateGoogleCloudBooks(c echo.Context) error {
 	request := &googleCloud.CreateBooksForm{}
 	cc := c.(*middleware.CustomContext)
 
@@ -62,7 +62,7 @@ func (h *Handler) PostGoogleCloudBooks(c echo.Context) error {
 	return c.JSON(http.StatusOK, response.SuccessfulCreated())
 }
 
-func (h *Handler) PutBooks(c echo.Context) error {
+func (h *Handler) UpdateBooks(c echo.Context) error {
 	request := &googleCloud.UpdateBooksForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {

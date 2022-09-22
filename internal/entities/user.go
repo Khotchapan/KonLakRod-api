@@ -7,12 +7,12 @@ type Users struct {
 	FirstName      string   `json:"firstName" bson:"first_name,omitempty"`
 	LastName       string   `json:"lastName" bson:"last_name,omitempty"`
 	Image          string   `json:"image" bson:"image,omitempty"`
-	Email          string   `json:"email,omitempty" bson:"email,omitempty"`
-	PhoneNumber    string   `json:"phoneNumber,omitempty" bson:"phone_number,omitempty"`
+	Email          string   `json:"email" bson:"email,omitempty"`
+	PhoneNumber    string   `json:"phoneNumber" bson:"phone_number,omitempty"`
 	Birthday       string   `json:"birthday" bson:"birthday,omitempty"`
 	Username       string   `json:"username" bson:"username,omitempty"`
 	PasswordHash   string   `json:"password_hash" bson:"password_hash,omitempty"`
-	Roles          []string `json:"roles,omitempty" bson:"roles,omitempty"`
+	Roles          []string `json:"roles" bson:"roles,omitempty"`
 	Activate       bool     `json:"activate" bson:"activate,omitempty"`
 	FacebookID     string   `json:"-" bson:"facebook_id,omitempty"`
 	FacebookActive bool     `json:"-" bson:"facebook_active,omitempty"`
