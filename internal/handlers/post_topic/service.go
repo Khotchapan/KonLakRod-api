@@ -41,9 +41,13 @@ func (s *Service) CreatePostTopic(c echo.Context, request *CreatePostTopicForm) 
 }
 
 func (s *Service) UpdatePostTopic(c echo.Context, request *UpdatePostTopicForm) error {
-	books := &entities.PostTopic{}
-	b := request.Fill(books)
-	err := s.collection.PostTopic.Update(b)
+	pt := &entities.PostTopic{}
+	err := s.collection.PostTopic.FindOneByObjectID(request.ID, pt)
+	if err != nil {
+		return err
+	}
+	b := request.Fill(pt)
+	err = s.collection.PostTopic.Update(b)
 	if err != nil {
 		return err
 	}
@@ -51,7 +55,10 @@ func (s *Service) UpdatePostTopic(c echo.Context, request *UpdatePostTopicForm) 
 }
 
 func (s *Service) DeletePostTopic(c echo.Context, request *DeletePostTopicForm) error {
-	err := s.collection.PostTopic.Delete(request)
+	pt := &entities.PostTopic{
+		Model: mongodb.Model{ID: *request.ID},
+	}
+	err := s.collection.PostTopic.Delete(pt)
 	if err != nil {
 		return err
 	}

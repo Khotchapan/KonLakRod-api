@@ -41,9 +41,13 @@ func (s *Service) CreatePostReply(c echo.Context, request *CreatePostReplyForm) 
 
 
 func (s *Service) UpdatePostReply(c echo.Context, request *UpdatePostReplyForm) error {
-	books := &entities.PostReply{}
-	b := request.Fill(books)
-	err := s.collection.PostReply.Update(b)
+	pr := &entities.PostReply{}
+	err := s.collection.PostReply.FindOneByObjectID(request.ID, pr)
+	if err != nil {
+		return err
+	}
+	b := request.Fill(pr)
+	err = s.collection.PostReply.Update(b)
 	if err != nil {
 		return err
 	}
@@ -51,7 +55,10 @@ func (s *Service) UpdatePostReply(c echo.Context, request *UpdatePostReplyForm) 
 }
 
 func (s *Service) DeletePostReply(c echo.Context, request *DeletePostReplyForm) error {
-	err := s.collection.PostReply.Delete(request)
+	pr := &entities.PostReply{
+		Model: mongodb.Model{ID: *request.ID},
+	}
+	err := s.collection.PostReply.Delete(pr)
 	if err != nil {
 		return err
 	}

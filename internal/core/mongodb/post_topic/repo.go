@@ -1,8 +1,6 @@
 package post_topic
 
 import (
-	"log"
-
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -36,7 +34,6 @@ func NewRepo(db *mongo.Database) *Repo {
 }
 
 func (r *Repo) FindAllPostTopic(f *GetAllPostTopicForm) (*mongodb.Page, error) {
-	log.Println("=====================================================")
 	var filterElements primitive.D
 	filterElements = append(filterElements, primitive.E{})
 	filterElements = append(filterElements, primitive.E{
@@ -44,11 +41,9 @@ func (r *Repo) FindAllPostTopic(f *GetAllPostTopicForm) (*mongodb.Page, error) {
 			"$exists": false,
 		},
 	})
-
 	//if f.Name != nil {
 	//filterElements = append(filterElements, primitive.E{Key: "$or", Value: primitive.A{primitive.M{"detail.name": primitive.Regex{Pattern: *f.Query, Options: "ig"}}}})
 	//}
-
 	pipeline := []primitive.M{
 		{"$match": filterElements},
 		// {"$lookup": primitive.M{
@@ -58,12 +53,10 @@ func (r *Repo) FindAllPostTopic(f *GetAllPostTopicForm) (*mongodb.Page, error) {
 		// 	"as":           "drug_category_docs",
 		// }},
 	}
-	log.Println("=====================================================")
 	postTopicResponse := []*PostTopicResponse{}
 	response, err := r.Aggregate(pipeline, &postTopicResponse, &f.PageQuery)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("response:",response)
 	return response, err
 }

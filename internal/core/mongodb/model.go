@@ -12,8 +12,8 @@ type EmptyStruct struct {
 
 type Model struct {
 	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty" firestore:"-"`
-	DeletedAt *time.Time         `json:"deleted_at" bson:"deleted_at,omitempty" firestore:"-"`
-	DeletedBy primitive.ObjectID `json:"deleted_by" bson:"deleted_by,omitempty" firestore:"-"`
+	DeletedAt *time.Time         `json:"-" bson:"deleted_at,omitempty" firestore:"-"`
+	DeletedBy primitive.ObjectID `json:"-" bson:"deleted_by,omitempty" firestore:"-"`
 	UpdatedAt *time.Time         `json:"updated_at" bson:"updated_at,omitempty" firestore:"-"`
 	CreatedAt time.Time          `json:"created_at" bson:"created_at,omitempty" firestore:"-"`
 }

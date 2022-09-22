@@ -2,13 +2,14 @@ package mongodb
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"math"
 	"reflect"
 	"sync"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func DB(mongo *mongo.Database) *mongo.Database {
@@ -302,15 +303,6 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 			p.PageInformation.TotalNumberOfPages = int64(math.Ceil(float64(count) / float64(size)))
 			p.Entities = i
 			return &p, nil
-			// return &Page{
-			// 	PageInformation: PageInformation{
-			// 		Page:                  page,
-			// 		Size:                  size,
-			// 		TotalNumberOfEntities: count,
-			// 		TotalNumberOfPages:    int64(math.Ceil(float64(count) / float64(size))),
-			// 	},
-			// 	Entities:        i,
-			// }, nil
 		}
 
 	}

@@ -15,7 +15,7 @@ func (f *CreatePostReplyForm) fill(data *entities.PostReply) *entities.PostReply
 		data.TopicRefId = f.TopicRefId
 	}
 	if f.Answer != nil {
-		data.Answer = *f.Answer
+		data.Answer = f.Answer
 	}
 
 	return data
@@ -23,7 +23,6 @@ func (f *CreatePostReplyForm) fill(data *entities.PostReply) *entities.PostReply
 
 type UpdatePostReplyForm struct {
 	ID         *primitive.ObjectID `json:"id" validate:"required"`
-	TopicRefId *primitive.ObjectID `json:"topic_ref_id"`
 	Answer     *string             `json:"answer"`
 }
 
@@ -31,11 +30,8 @@ func (f *UpdatePostReplyForm) Fill(data *entities.PostReply) *entities.PostReply
 	if f.ID != nil {
 		data.ID = *f.ID
 	}
-	if f.TopicRefId != nil {
-		data.TopicRefId = f.TopicRefId
-	}
 	if f.Answer != nil {
-		data.Answer = *f.Answer
+		data.Answer = f.Answer
 	}
 	return data
 }
