@@ -1,8 +1,6 @@
 package user
 
 import (
-	"log"
-
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -79,7 +77,6 @@ func (r *Repo) FindAllUsers(f *GetAllUsersForm) (*mongodb.Page, error) {
 	return response, err
 }
 func (r *Repo) FindOneByUserName(name *string, i interface{}) error {
-	log.Println("name:", *name)
 	err := r.FindOneByPrimitiveM(primitive.M{
 		"deleted_at": primitive.M{
 			"$exists": false,

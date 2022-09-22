@@ -93,16 +93,21 @@ func (s *Service) FindOneUsers(c echo.Context, request *GetOneUsersForm) (*entit
 }
 
 func (s *Service) CreateUsers(c echo.Context, request *CreateUsersForm) error {
+	log.Println("TEST:1")
 	us := &entities.Users{}
 	response := &entities.Users{}
 	err := s.collection.Users.FindOneByUserName(request.Username, response)
-	if err != nil {
+	log.Println("TEST:1.2")
+	if err != nil && err != mongo.ErrNoDocuments {
+		log.Println("err:", err)
 		// ErrNoDocuments means that the filter did not match any documents in the collection
-		if err == mongo.ErrNoDocuments {
-			return errors.New("error no documents")
-		}
+		//	if err == mongo.ErrNoDocuments {
+		//return errors.New("error no documents")
 		return err
+		//}
+
 	}
+	log.Println("TEST:2")
 	password, err := bcrypt.GeneratePassword(*request.Password)
 	if err != nil {
 		//c.Error(err)

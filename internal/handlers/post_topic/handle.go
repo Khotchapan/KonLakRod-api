@@ -1,6 +1,7 @@
 package post_topic
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
@@ -20,6 +21,7 @@ func NewHandler(service ServiceInterface) *Handler {
 }
 
 func (h *Handler) CreatePostTopic(c echo.Context) error {
+	log.Println("CreatePostTopic1")
 	request := &CreatePostTopicForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {

@@ -13,6 +13,8 @@ import (
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	tokens "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
 	users "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	postTopic "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_topic"
+	postReply "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_reply"
 	coreValidator "github.com/khotchapan/KonLakRod-api/internal/core/validator"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
@@ -56,6 +58,9 @@ func main() {
 		connection.Collection{
 			Users:  users.NewRepo(dbMonggo),
 			Tokens: tokens.NewRepo(dbMonggo),
+			PostTopic: postTopic.NewRepo(dbMonggo),
+			PostReply: postReply.NewRepo(dbMonggo),
+
 		})
 	options := &router.Options{
 		App:        app,

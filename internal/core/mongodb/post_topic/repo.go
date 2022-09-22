@@ -1,6 +1,8 @@
 package post_topic
 
 import (
+	"log"
+
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,7 +18,7 @@ type RepoInterface interface {
 	Delete(i interface{}) error
 	FindOneByObjectID(oid *primitive.ObjectID, i interface{}) error
 	FindOneByID(id string, i interface{}) error
-	FindAllPostTopic(request *GetAllPostTopicForm) (*mongodb.Page, error)
+	FindAllPostTopic(f *GetAllPostTopicForm) (*mongodb.Page, error)
 }
 
 type Repo struct {
@@ -34,6 +36,7 @@ func NewRepo(db *mongo.Database) *Repo {
 }
 
 func (r *Repo) FindAllPostTopic(f *GetAllPostTopicForm) (*mongodb.Page, error) {
+	log.Println("=====================================================")
 	var filterElements primitive.D
 	filterElements = append(filterElements, primitive.E{})
 	filterElements = append(filterElements, primitive.E{
@@ -55,22 +58,12 @@ func (r *Repo) FindAllPostTopic(f *GetAllPostTopicForm) (*mongodb.Page, error) {
 		// 	"as":           "drug_category_docs",
 		// }},
 	}
-
-	// size := f.GetSize()
-	// page := f.GetPage()
-
-	// if size > 0 {
-	// 	pipeline = append(pipeline, primitive.M{
-	// 		"$skip": int64(size * (page - 1)),
-	// 	})
-	// 	pipeline = append(pipeline, primitive.M{
-	// 		"$limit": int64(size),
-	// 	})
-	// }
+	log.Println("=====================================================")
 	postTopicResponse := []*PostTopicResponse{}
 	response, err := r.Aggregate(pipeline, &postTopicResponse, &f.PageQuery)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("response:",response)
 	return response, err
 }

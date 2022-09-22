@@ -79,8 +79,8 @@ func Router(options *Options) {
 	//post topic
 	postTopicEndpoint := postTopicHandler.NewHandler(postTopicHandler.NewService(app, collection))
 	postTopicGroup := api.Group("/post-topic")
-	postTopicGroup.GET("", postTopicEndpoint.GetAllPostTopic)
 	postTopicGroup.GET("/:id", postTopicEndpoint.GetOnePostTopic)
+	postTopicGroup.GET("", postTopicEndpoint.GetAllPostTopic)
 	postTopicGroup.POST("", postTopicEndpoint.CreatePostTopic)
 	postTopicGroup.PUT("", postTopicEndpoint.UpdatePostTopic)
 	postTopicGroup.DELETE("", postTopicEndpoint.DeletePostTopic)
@@ -88,8 +88,8 @@ func Router(options *Options) {
 	//post reply
 	postReplyEndpoint := postReplyHandler.NewHandler(postReplyHandler.NewService(app, collection))
 	postReplyGroup := api.Group("/post-reply")
-	postReplyGroup.GET("", postReplyEndpoint.GetAllPostReply)
 	postReplyGroup.GET("/:id", postReplyEndpoint.GetOnePostReply)
+	postReplyGroup.GET("", postReplyEndpoint.GetAllPostReply)
 	postReplyGroup.POST("", postReplyEndpoint.CreatePostReply)
 	postReplyGroup.PUT("", postReplyEndpoint.UpdatePostReply)
 	postReplyGroup.DELETE("", postReplyEndpoint.DeletePostReply)
@@ -105,7 +105,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testEndpoint.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 2.11})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 3.0})
 }
 func HelloWorld(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World! KonLakRod")
