@@ -252,15 +252,15 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 		size = form[0].GetSize()
 		page = form[0].GetPage()
 	}
-	pipelineCount := pipeline
+	//pipelineCount := pipeline
 	//=====================Count=========================
 	//###################Channels###################
-	// ch := make(chan []*CountDocument) // สร้างท่อ Channel เอาไว้ส่งข้อมูล
-	// go r.countDocumentByAggregate(pipeline, ch, ctx)
-	// countDocument := <-ch // ค่าจากท่อ Channel จะออกตรงนี้
-	// log.Println("countDocument:",countDocument[0].Count)
-	//#########################################
-	pipelineCount = append(pipelineCount, primitive.M{
+	ch := make(chan []*CountDocument) // สร้างท่อ Channel เอาไว้ส่งข้อมูล
+	go r.countDocumentByAggregate(pipeline, ch, ctx)
+	countDocument := <-ch // ค่าจากท่อ Channel จะออกตรงนี้
+
+	//#############################################
+	/*pipelineCount = append(pipelineCount, primitive.M{
 		"$count": "count",
 	})
 	cursorCount, err := r.Collection.Aggregate(
@@ -273,7 +273,8 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 	countDocument := []*CountDocument{}
 	if err = cursorCount.All(ctx, &countDocument); err != nil {
 		return nil, err
-	}
+	}*/
+	//log.Println("countDocument:",countDocument[0].Count)
 	//===================================================
 	//###################################################
 	pipeline = append(pipeline, primitive.M{
