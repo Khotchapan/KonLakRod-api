@@ -72,7 +72,8 @@ func main() {
 	godotenv.Load()
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "80" // Default port if not specified
+		port = viper.GetString("app.port")
+		//port = "80" // Default port if not specified
 	}
 	address := fmt.Sprintf("%s:%s", "0.0.0.0", port)
 	fmt.Println("address:", address)

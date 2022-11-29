@@ -257,7 +257,6 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 	//###################Channels###################
 	ch := make(chan []*CountDocument) // สร้างท่อ Channel เอาไว้ส่งข้อมูล
 	go r.countDocumentByAggregate(pipeline, ch, ctx)
-	countDocument := <-ch // ค่าจากท่อ Channel จะออกตรงนี้
 
 	//#############################################
 	/*pipelineCount = append(pipelineCount, primitive.M{
@@ -294,6 +293,7 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 		return nil, err
 	}
 	//###################################################
+	countDocument := <-ch // ค่าจากท่อ Channel จะออกตรงนี้
 	var p Page
 	if len(countDocument) > 0 {
 		count := countDocument[0].Count
