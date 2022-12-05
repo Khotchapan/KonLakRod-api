@@ -9,12 +9,14 @@ import (
 	"time"
 
 	"github.com/go-playground/validator"
+	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
+	"github.com/khotchapan/KonLakRod-api/internal/core/memory"
+	postReply "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_reply"
+	postTopic "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_topic"
 	tokens "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
 	users "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
-	postTopic "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_topic"
-	postReply "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_reply"
 	coreValidator "github.com/khotchapan/KonLakRod-api/internal/core/validator"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
@@ -32,35 +34,37 @@ func initViper() {
 	viper.SetConfigName("config")                          // ชื่อ config file
 	viper.AutomaticEnv()                                   // อ่าน value จาก ENV variable
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_")) // แปลง _ underscore ใน env เป็น . dot notation ใน viper
-	// อ่าน config
+	// read config
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("cannot read in viper config:%s", err)
 	}
+
 }
 func init() {
 	log.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 	initViper()
 	log.Println(viper.Get("app.env"))
+	log.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 }
 func main() {
-	log.Println("###################################################################################################")
 	var (
-		e           = initEcho()
-		dbMonggo, _ = newMongoDB()
-		gcs         = googleCloud.NewGoogleCloudStorage(dbMonggo)
+		e             = initEcho()
+		dbMonggo, _   = newMongoDB()
+		redisDatabase = newRedisPool()
+		gcs           = googleCloud.NewGoogleCloudStorage(dbMonggo)
 	)
 	app := context.WithValue(context.Background(), connection.ConnectionInit,
 		connection.Connection{
 			Mongo: dbMonggo,
 			GCS:   gcs,
+			Redis: memory.New(redisDatabase),
 		})
 	collection := context.WithValue(context.Background(), connection.CollectionInit,
 		connection.Collection{
-			Users:  users.NewRepo(dbMonggo),
-			Tokens: tokens.NewRepo(dbMonggo),
+			Users:     users.NewRepo(dbMonggo),
+			Tokens:    tokens.NewRepo(dbMonggo),
 			PostTopic: postTopic.NewRepo(dbMonggo),
 			PostReply: postReply.NewRepo(dbMonggo),
-
 		})
 	options := &router.Options{
 		App:        app,
@@ -123,4 +127,40 @@ func newMongoDB() (*mongo.Database, context.Context) {
 	}
 	fmt.Println("Connected to MongoDB")
 	return client.Database("konlakrod"), ctx
+}
+
+func newRedisPool() *redis.Client {
+
+	// var pass *string = nil
+	// mempass := viper.GetString("redis.pass")
+	// if mempass != "" {
+	// 	pass = &mempass
+	// }
+
+	// conf := redis.Config{
+	// 	Addr:            viper.GetString("REDIS.HOST") + ":" + viper.GetString("REDIS.PORT"),
+	// 	MaxIdle:         viper.GetInt("REDIS.MAXIDLE"),
+	// 	MaxActive:       viper.GetInt("REDIS.MAXACTIVE"),
+	// 	IdleTimeout:     viper.GetDuration("REDIS.IDLETIMEOUT"),
+	// 	MaxConnLifetime: viper.GetDuration("REDIS.MAXLIFETIME"),
+	// 	Password:        pass,
+	// }
+	// logx.GetLog().Infof("[CONFIG] redis connection: %+v", conf)
+
+	// pool, err := redis.Open(conf)
+	// if err != nil {
+	// 	logx.GetLog().Fatalf("cannot open redis connection: %s", err)
+	// }
+
+	// return pool
+
+	var ctx = context.Background()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	pong, err := rdb.Ping(ctx).Result()
+	fmt.Println(pong, err)
+	return rdb
 }

@@ -21,3 +21,5 @@ RUN go build -o main .
 EXPOSE 4000
 
 CMD ["/app/main"]
+
+MAINTAINER Khotchapan Panprasittiewch <k.panprasittiwech@gmail.com>

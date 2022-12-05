@@ -19,7 +19,7 @@ type TokenResponse struct {
 	RefreshToken     *string `json:"refresh_token"`
 }
 
-type TokenDetails struct {
+type TokenDetailsTest struct {
 	AccessToken  string
 	AccessUuid   string
 	RefreshToken string
@@ -27,7 +27,7 @@ type TokenDetails struct {
 	AtExpires    int64
 	RtExpires    int64
 }
-type TokenDetailsTest struct {
+type TokenDetails struct {
 	AccessToken           string
 	RefreshToken          string
 	IssuedAt              int64

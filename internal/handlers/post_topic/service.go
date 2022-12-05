@@ -2,6 +2,7 @@ package post_topic
 
 import (
 	"context"
+	"log"
 
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
@@ -80,7 +81,8 @@ func (s *Service) FindAllPostTopic(c echo.Context, request *postTopic.GetAllPost
 	// user := c.Get("user").(*jwt.Token)
 	// claims := user.Claims.(*coreMiddleware.Claims)
 	// log.Println("claims.UserID:", claims.UserID)
-
+	s.con.Redis.Delete("name")
+	log.Println("####################################")
 	response, err := s.collection.PostTopic.FindAllPostTopic(request)
 	if err != nil {
 		return nil, err

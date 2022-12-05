@@ -2,13 +2,14 @@ package connection
 
 import (
 	"context"
+	"log"
+	"github.com/khotchapan/KonLakRod-api/internal/core/memory"
+	postReply "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_reply"
+	postTopic "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_topic"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
-	postTopic "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_topic"
-	postReply "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_reply"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 )
 
 const (
@@ -18,12 +19,12 @@ const (
 
 type Connection struct {
 	Mongo *mongo.Database
-	GCS googleCloud.GoogleCloudInterface
+	GCS   googleCloud.GoogleCloudInterface
+	Redis *memory.Redis
 }
-
 type Collection struct {
-	Users  user.RepoInterface
-	Tokens token.RepoInterface
+	Users     user.RepoInterface
+	Tokens    token.RepoInterface
 	PostTopic postTopic.RepoInterface
 	PostReply postReply.RepoInterface
 }

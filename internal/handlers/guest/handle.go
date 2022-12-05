@@ -23,10 +23,9 @@ func (h *Handler) LoginUsers(c echo.Context) error {
 	if err := cc.BindAndValidate(request); err != nil {
 		return err
 	}
-	t, err := h.service.LoginUsers(c, request)
+	response, err := h.service.LoginUsers(c, request)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
-	return c.JSON(http.StatusOK, t)
+	return c.JSON(http.StatusOK, response)
 }

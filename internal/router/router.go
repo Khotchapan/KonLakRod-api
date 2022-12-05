@@ -2,6 +2,10 @@ package router
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"path"
+
 	"github.com/golang-jwt/jwt"
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	guestHandler "github.com/khotchapan/KonLakRod-api/internal/handlers/guest"
@@ -13,8 +17,6 @@ import (
 	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
-	"path"
 )
 
 type Options struct {
@@ -105,7 +107,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testEndpoint.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 3.1})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 3.2})
 }
 func HelloWorld(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World! KonLakRod&")
@@ -119,5 +121,7 @@ func restricted(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*coreMiddleware.Claims)
 	name := claims.Subject
-	return c.String(http.StatusOK, "Welcome:"+name+":!")
+	userID := claims.UserID
+	text := fmt.Sprintf("Welcome %s : %v \n", name,userID)
+	return c.String(http.StatusOK, text)
 }
