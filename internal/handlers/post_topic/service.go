@@ -81,6 +81,7 @@ func (s *Service) FindAllPostTopic(c echo.Context, request *postTopic.GetAllPost
 	// user := c.Get("user").(*jwt.Token)
 	// claims := user.Claims.(*coreMiddleware.Claims)
 	// log.Println("claims.UserID:", claims.UserID)
+	
 	s.con.Redis.Delete("name")
 	log.Println("####################################")
 	response, err := s.collection.PostTopic.FindAllPostTopic(request)

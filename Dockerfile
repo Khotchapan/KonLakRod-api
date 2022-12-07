@@ -22,4 +22,4 @@ EXPOSE 4000
 
 CMD ["/app/main"]
 
-MAINTAINER Khotchapan Panprasittiewch <k.panprasittiwech@gmail.com>
+#MAINTAINER Khotchapan Panprasittiewch <k.panprasittiwech@gmail.com>

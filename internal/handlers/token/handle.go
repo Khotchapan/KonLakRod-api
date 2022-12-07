@@ -19,7 +19,7 @@ func (h *Handler) RefreshToken(c echo.Context) error {
 	request := &RefreshTokenForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	response, err := h.service.RefreshTokenAndSetDatabase(c, request)
 	if err != nil {

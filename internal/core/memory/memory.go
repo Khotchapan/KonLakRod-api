@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -63,10 +64,17 @@ func (r *Redis) SetKey(key string, value interface{}, exp time.Duration) error {
 	return nil
 }
 
-func (r *Redis) Delete(key string) error {
-	err := r.redisClient.Del(ctx, key).Err()
+func (r *Redis) Delete(key string) (int, error) {
+	status, err := r.redisClient.Del(ctx, key).Result()
+	statusInt := int(status)
+	log.Println("status:", status)
 	if err != nil {
-		return err
+		return statusInt, err
 	}
-	return nil
+	return statusInt, nil
+}
+
+func (r *Redis) CheckPingPong() {
+	pong, err := r.redisClient.Ping(ctx).Result()
+	fmt.Println(pong, err)
 }

@@ -2,10 +2,7 @@ package guest
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"log"
-	"time"
 
 	"github.com/khotchapan/KonLakRod-api/internal/core/bcrypt"
 	"github.com/khotchapan/KonLakRod-api/internal/core/connection"
@@ -45,17 +42,21 @@ func (s *Service) LoginUsers(c echo.Context, request *LoginUsersForm) (*entities
 	if err != nil {
 		return nil, err
 	}
+
 	//s.con.GCS.CreateBooks()
 	token := &entities.TokenResponse{
-		AccessToken:      &tokenDetails.AccessToken,
-		RefreshToken:     &tokenDetails.RefreshToken,
+		AccessToken:  &tokenDetails.AccessToken,
+		RefreshToken: &tokenDetails.RefreshToken,
 	}
-	json, err := json.Marshal(map[string]string{"some": "value"})
-	if err != nil {
-		return nil, err
-	}
-	s.con.Redis.Test("name", json, (20)*time.Second)
-	//s.con.Redis.SetKey("name", json, (10)*time.Second)
-	log.Println("=========================================")
+	// json, err := json.Marshal(map[string]string{"some": "value"})
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	//s.con.Redis.Test("name", json, (60)*time.Second)
+	// s.con.Redis.CheckPingPong()
+	// s.con.Redis.SetKey("name", json, (10)*time.Second)
+	// s.con.Redis.SetKey("name3", json, (10)*time.Second)
+	//log.Println("=========================================")
 	return token, nil
 }

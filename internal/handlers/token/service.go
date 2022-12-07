@@ -15,13 +15,14 @@ import (
 	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ServiceInterface interface {
 	GenerateTokensAndSetDatabase(c echo.Context, u *entities.Users) (*entities.TokenDetails, error)
-	createJWTToken(c echo.Context, u *entities.Users) (*entities.TokenDetails, error)
+	//createJWTToken(c echo.Context, u *entities.Users) (*entities.TokenDetails, error)
 	RefreshTokenAndSetDatabase(c echo.Context, request *RefreshTokenForm) (*entities.TokenResponse, error)
+	//CreateAuthentication(c echo.Context,token *entities.TokenDetails)( *entities.TokenDetails,error)
 }
 
 type Service struct {
@@ -37,15 +38,29 @@ func NewService(app, collection context.Context) *Service {
 }
 
 func (s *Service) GenerateTokensAndSetDatabase(c echo.Context, u *entities.Users) (*entities.TokenDetails, error) {
-	token, err := s.createJWTToken(c, u)
+	token, err := s.GenerateTokens(u)
 	if err != nil {
 		return nil, err
 	}
 
 	return token, nil
 }
+func (s *Service) CreateAuthentication(token *entities.TokenDetails) error {
 
-func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.TokenDetails, error) {
+	at := time.Unix(token.AccessTokenExpiresAt, 0)
+	rt := time.Unix(token.RefreshTokenExpiresAt, 0)
+	now := time.Now()
+	// json, err := json.Marshal(map[string]string{"some2": "value2"})
+	// if err != nil {
+	// 	return err
+	// }
+	//s.con.Redis.SetKey("name2", json, (10)*time.Second)
+	s.con.Redis.SetKey(token.AccessTokenId, token.UserID.Hex(), time.Duration(at.Sub(now)))
+	s.con.Redis.SetKey(token.RefreshTokenId, token.UserID.Hex(), time.Duration(rt.Sub(now)))
+	return nil
+}
+
+func (s *Service) GenerateTokens(u *entities.Users) (*entities.TokenDetails, error) {
 	now := time.Now()
 	tokenDetails := &entities.TokenDetails{}
 	tokenDetails.IssuedAt = now.Unix()
@@ -79,6 +94,7 @@ func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.T
 	rtClaims["iat"] = tokenDetails.IssuedAt
 	rtClaims["exp"] = tokenDetails.RefreshTokenExpiresAt
 	rtClaims["jti"] = tokenDetails.RefreshTokenId
+	rtClaims["user_id"] = &u.ID
 	//rtClaims["user_id"] = &u.ID
 	//rtClaims["roles"] = u.Roles
 	refreshToken, err := rtToken.SignedString([]byte("secret"))
@@ -86,22 +102,20 @@ func (s *Service) createJWTToken(c echo.Context, u *entities.Users) (*entities.T
 		return nil, err
 	}
 	tokenDetails.RefreshToken = refreshToken
-
+	tokenDetails.UserID = &u.ID
+	tokenDetails.Roles = u.Roles
 	//====================================================================
-	tk := &entities.Tokens{RefreshToken: tokenDetails.RefreshToken,
-		UserRefId: &u.ID}
+	// tk := &entities.Tokens{RefreshToken: tokenDetails.RefreshToken,
+	// 	UserRefId: &u.ID}
 
-	err = s.collection.Tokens.Create(tk)
+	// err = s.collection.Tokens.Create(tk)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	err = s.CreateAuthentication(tokenDetails)
 	if err != nil {
 		return nil, err
 	}
-
-	// tkr := &entities.TokenResponse{
-	// 	AccessToken:      &tokenDetails.AccessToken,
-	// 	RefreshToken:     &tokenDetails.RefreshToken,
-	// }
-
-	//return tkr, nil
 	return tokenDetails, nil
 }
 
@@ -117,16 +131,29 @@ func (s *Service) RefreshTokenAndSetDatabase(c echo.Context, request *RefreshTok
 		//return nil, echo.ErrUnauthorized
 	}
 	log.Println("claims:", claims)
-	log.Println("claims:", claims["iss"].(string))
-	// id, ok := claims["user_id"].(string)
-	// log.Println("user_id:", id)
-	// if !ok {
-	// 	return nil, errors.New("invalid JWT Payload")
-	// }
-	//return nil, nil
+
+	userID, ok := claims["user_id"].(string)
+	if !ok {
+		return nil, errors.New("invalid JWT Payload")
+	}
+	log.Println("userID:", userID)
+	objUserID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, errors.New("invalid JWT Payload")
+	}
+	RefreshTokenId, ok := claims["jti"].(string)
+	if !ok {
+		return nil, errors.New("invalid JWT Payload")
+	}
 	//============================================================================
-	tk := &entities.Tokens{}
-	log.Println("request.RefreshToken:", *request.RefreshToken)
+	//tk := &entities.Tokens{}
+	deleted, err := s.con.Redis.Delete(RefreshTokenId)
+	if err != nil || deleted == 0 {
+		return nil, errors.New("Invalid token or expired token")
+	}
+
+	//============================================================================
+	/*log.Println("request.RefreshToken:", *request.RefreshToken)
 	err = s.collection.Tokens.FindOneByRefreshToken(request.RefreshToken, tk)
 	log.Println("tk:", tk)
 	if err != nil {
@@ -139,16 +166,16 @@ func (s *Service) RefreshTokenAndSetDatabase(c echo.Context, request *RefreshTok
 	err = s.collection.Tokens.Delete(tk)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 	us := &entities.Users{}
-	err = s.collection.Users.FindOneByObjectID(tk.UserRefId, us)
+	//err = s.collection.Users.FindOneByObjectID(tk.UserRefId, us)
+	err = s.collection.Users.FindOneByObjectID(&objUserID, us)
 	if err != nil {
 		return nil, err
 	}
 	log.Println("us:", us)
-	tokenDetails, err := s.GenerateTokensAndSetDatabase(c, us)
+	tokenDetails, err := s.GenerateTokens(us)
 	if err != nil {
-
 		return nil, err
 	}
 	tokenResponse := &entities.TokenResponse{

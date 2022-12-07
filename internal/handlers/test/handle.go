@@ -25,7 +25,7 @@ func (h *Handler) GetFile(c echo.Context) error {
 	// req.File = file
 	response, err := h.service.FindAllBooks(c)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	// return c.JSON(http.StatusOK, map[string]interface{}{
 	// 	"link": res,
@@ -37,11 +37,11 @@ func (h *Handler) GetOneGoogleCloudBooks(c echo.Context) error {
 	request := &GetOneGoogleCloudBooksForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	response, err := h.service.FindOneBooks(c, request)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, response)
 }
@@ -51,12 +51,12 @@ func (h *Handler) CreateGoogleCloudBooks(c echo.Context) error {
 	cc := c.(*middleware.CustomContext)
 
 	if err := cc.BindAndValidate(request); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	err := h.service.CreateBooks(c, request)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	response := &mongodb.Response{}
 	return c.JSON(http.StatusOK, response.SuccessfulCreated())
@@ -66,11 +66,11 @@ func (h *Handler) UpdateBooks(c echo.Context) error {
 	request := &googleCloud.UpdateBooksForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	err := h.service.UpdateBooks(c, request)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	response := &mongodb.Response{}
 	return c.JSON(http.StatusOK, response.SuccessfulOK())
@@ -80,11 +80,11 @@ func (h *Handler) DeleteBooks(c echo.Context) error {
 	request := &googleCloud.DeleteUsersForm{}
 	cc := c.(*middleware.CustomContext)
 	if err := cc.BindAndValidate(request); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	err := h.service.DeleteBooks(c, request)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	response := &mongodb.Response{}
 	return c.JSON(http.StatusOK, response.SuccessfulOK())
@@ -93,7 +93,7 @@ func (h *Handler) DeleteBooks(c echo.Context) error {
 func (h *Handler) UploadImage(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	request := &googleCloud.UploadForm{
@@ -102,7 +102,7 @@ func (h *Handler) UploadImage(c echo.Context) error {
 
 	url, err := h.service.UploadImage(c, request)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

@@ -154,13 +154,13 @@ func newRedisPool() *redis.Client {
 
 	// return pool
 
-	var ctx = context.Background()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
+	var ctx = context.Background()
 	pong, err := rdb.Ping(ctx).Result()
-	fmt.Println(pong, err)
+	fmt.Println("redis:", pong, err)
 	return rdb
 }

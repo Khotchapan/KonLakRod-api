@@ -107,7 +107,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testEndpoint.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 3.2})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 3.3})
 }
 func HelloWorld(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World! KonLakRod&")
