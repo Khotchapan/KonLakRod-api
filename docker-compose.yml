@@ -1,0 +1,31 @@
+version: "3"
+services:
+  basic-docker-api:
+    container_name: docker-api
+    build: .
+    ports:
+      - 4000:4000
+    environment:
+      REDIS_URI: redis
+      REDIS_PORT: "6379"
+    # networks:
+    #   - shared  
+      
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
+    # networks:
+    #   - shared
+    volumes:
+      - redisdata:/data
+
+# networks:
+#   shared:
+#     external:
+#       name: shared
+
+volumes:
+  redisdata:

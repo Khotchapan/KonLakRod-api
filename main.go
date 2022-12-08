@@ -28,6 +28,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var ctx context.Context = context.Background()
+
 func initViper() {
 
 	viper.AddConfigPath("configs")                         // ระบุ path ของ config file
@@ -40,8 +42,15 @@ func initViper() {
 	}
 
 }
+func initGoDotEnv() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 func init() {
 	log.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+	initGoDotEnv()
 	initViper()
 	log.Println(viper.Get("app.env"))
 	log.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
@@ -53,13 +62,13 @@ func main() {
 		redisDatabase = newRedisPool()
 		gcs           = googleCloud.NewGoogleCloudStorage(dbMonggo)
 	)
-	app := context.WithValue(context.Background(), connection.ConnectionInit,
+	app := context.WithValue(ctx, connection.ConnectionInit,
 		connection.Connection{
 			Mongo: dbMonggo,
 			GCS:   gcs,
 			Redis: memory.New(redisDatabase),
 		})
-	collection := context.WithValue(context.Background(), connection.CollectionInit,
+	collection := context.WithValue(ctx, connection.CollectionInit,
 		connection.Collection{
 			Users:     users.NewRepo(dbMonggo),
 			Tokens:    tokens.NewRepo(dbMonggo),
@@ -73,14 +82,14 @@ func main() {
 	}
 	router.Router(options)
 
-	godotenv.Load()
+	//godotenv.Load()
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = viper.GetString("app.port")
 		//port = "80" // Default port if not specified
 	}
 	address := fmt.Sprintf("%s:%s", "0.0.0.0", port)
-	fmt.Println("address:", address)
+	log.Println("address:", address)
 	e.Logger.Fatal(e.Start(address))
 }
 
@@ -101,10 +110,10 @@ func initEcho() *echo.Echo {
 }
 
 func newMongoDB() (*mongo.Database, context.Context) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 	//EnvMongoURI := os.Getenv("MONGOURI")
 	EnvMongoURI := viper.GetString("MONGO.HOST")
 	//log.Println("EnvMongoURI", EnvMongoURI)
@@ -113,20 +122,20 @@ func newMongoDB() (*mongo.Database, context.Context) {
 		log.Fatal(err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	contextDatabase, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
+	err = client.Connect(contextDatabase)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	//ping the database
-	err = client.Ping(ctx, nil)
+	err = client.Ping(contextDatabase, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Connected to MongoDB")
-	return client.Database("konlakrod"), ctx
+	log.Println("Connected to MongoDB")
+	return client.Database("konlakrod"), contextDatabase
 }
 
 func newRedisPool() *redis.Client {
@@ -153,14 +162,32 @@ func newRedisPool() *redis.Client {
 	// }
 
 	// return pool
-
+	host := getenv("REDIS_URI", "localhost")
+	log.Println("HOST::::::::::", host)
+	val := fmt.Sprintf("%s:%s", host, "6379")
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		//Addr:     "localhost:6379",
+		Addr:     val,
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	var ctx = context.Background()
+
+	// if err := rdb.Ping(ctx); err != nil {
+	// 	log.Fatal("redis:",err)
+
+	// }
 	pong, err := rdb.Ping(ctx).Result()
-	fmt.Println("redis:", pong, err)
+	if err != nil {
+		log.Fatal("redis error:", err)
+	}
+	log.Println("redis:", pong)
 	return rdb
+}
+
+func getenv(key, fallback string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return fallback
+	}
+	return value
 }
