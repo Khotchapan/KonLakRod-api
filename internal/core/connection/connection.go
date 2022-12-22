@@ -30,7 +30,9 @@ type Collection struct {
 }
 
 func GetConnect(ctx context.Context, k string) *Connection {
+
 	if v, ok := ctx.Value(k).(Connection); ok {
+		//log.Println("GetConnect:",v)
 		return &v
 	}
 	log.Panicln("Service can't create Connection or ctx not match")
@@ -39,6 +41,7 @@ func GetConnect(ctx context.Context, k string) *Connection {
 
 func GetCollection(ctx context.Context, k string) *Collection {
 	if v, ok := ctx.Value(k).(Collection); ok {
+		//log.Println("GetCollection:",v)
 		return &v
 	}
 	log.Panicln("Seveice can't create Collection or ctx not math")

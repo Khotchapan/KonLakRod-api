@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -17,6 +16,7 @@ import (
 	postTopic "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/post_topic"
 	tokens "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/token"
 	users "github.com/khotchapan/KonLakRod-api/internal/core/mongodb/user"
+	"github.com/khotchapan/KonLakRod-api/internal/core/utils"
 	coreValidator "github.com/khotchapan/KonLakRod-api/internal/core/validator"
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	coreMiddleware "github.com/khotchapan/KonLakRod-api/internal/middleware"
@@ -40,7 +40,7 @@ func initViper() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("cannot read in viper config:%s", err)
 	}
-
+	log.Println(viper.Get("app.env"))
 }
 func initGoDotEnv() {
 	err := godotenv.Load()
@@ -52,7 +52,6 @@ func init() {
 	log.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 	initGoDotEnv()
 	initViper()
-	log.Println(viper.Get("app.env"))
 	log.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 }
 func main() {
@@ -81,13 +80,7 @@ func main() {
 		Echo:       e,
 	}
 	router.Router(options)
-
-	//godotenv.Load()
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = viper.GetString("app.port")
-		//port = "80" // Default port if not specified
-	}
+	port := utils.Getenv("PORT", viper.GetString("app.port"))
 	address := fmt.Sprintf("%s:%s", "0.0.0.0", port)
 	log.Println("address:", address)
 	e.Logger.Fatal(e.Start(address))
@@ -110,13 +103,10 @@ func initEcho() *echo.Echo {
 }
 
 func newMongoDB() (*mongo.Database, context.Context) {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
 	//EnvMongoURI := os.Getenv("MONGOURI")
+	//viper.SetDefault("MONGO.HOST", "mongodb+srv://admin:1234@cluster0.6phd9zm.mongodb.net/?retryWrites=true&w=majority")
 	EnvMongoURI := viper.GetString("MONGO.HOST")
-	//log.Println("EnvMongoURI", EnvMongoURI)
+	log.Println("EnvMongoURI", EnvMongoURI)
 	client, err := mongo.NewClient(options.Client().ApplyURI(EnvMongoURI))
 	if err != nil {
 		log.Fatal(err)
@@ -162,7 +152,7 @@ func newRedisPool() *redis.Client {
 	// }
 
 	// return pool
-	host := getenv("REDIS_URI", "localhost")
+	host := utils.Getenv("REDIS_URI", "localhost")
 	log.Println("HOST::::::::::", host)
 	val := fmt.Sprintf("%s:%s", host, "6379")
 	rdb := redis.NewClient(&redis.Options{
@@ -182,12 +172,4 @@ func newRedisPool() *redis.Client {
 	}
 	log.Println("redis:", pong)
 	return rdb
-}
-
-func getenv(key, fallback string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return fallback
-	}
-	return value
 }

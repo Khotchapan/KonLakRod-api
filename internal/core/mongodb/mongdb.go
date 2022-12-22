@@ -256,7 +256,25 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 	//=====================Count=========================
 	//###################Channels###################
 	ch := make(chan []*CountDocument) // สร้างท่อ Channel เอาไว้ส่งข้อมูล
-	go r.countDocumentByAggregate(pipeline, ch, ctx)
+	go r.countDocumentByAggregate(pipeline, ch, &ctx)
+	/*go func(pipeline []primitive.M, data chan []*CountDocument, ctx context.Context) error {
+		pipeline = append(pipeline, primitive.M{
+			"$count": "count",
+		})
+		cursorCount, err := r.Collection.Aggregate(
+			ctx,
+			pipeline,
+		)
+		if err != nil {
+			return err
+		}
+		countDocument := []*CountDocument{}
+		if err = cursorCount.All(ctx, &countDocument); err != nil {
+			return err
+		}
+		data <- countDocument // นำค่าเข้าท่อ Channel
+		return nil
+	}(pipeline, ch, ctx)*/
 
 	//#############################################
 	/*pipelineCount = append(pipelineCount, primitive.M{
@@ -312,19 +330,19 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 	return &p, nil
 }
 
-func (r *Repo) countDocumentByAggregate(pipeline []primitive.M, data chan []*CountDocument, ctx context.Context) error {
+func (r *Repo) countDocumentByAggregate(pipeline []primitive.M, data chan []*CountDocument, ctx *context.Context) error {
 	pipeline = append(pipeline, primitive.M{
 		"$count": "count",
 	})
 	cursorCount, err := r.Collection.Aggregate(
-		ctx,
+		*ctx,
 		pipeline,
 	)
 	if err != nil {
 		return err
 	}
 	countDocument := []*CountDocument{}
-	if err = cursorCount.All(ctx, &countDocument); err != nil {
+	if err = cursorCount.All(*ctx, &countDocument); err != nil {
 		return err
 	}
 	data <- countDocument // นำค่าเข้าท่อ Channel
