@@ -57,22 +57,22 @@ func init() {
 func main() {
 	var (
 		e             = initEcho()
-		dbMonggo, _   = newMongoDB()
+		mongodb, _    = newMongoDB()
 		redisDatabase = newRedisPool()
-		gcs           = googleCloud.NewGoogleCloudStorage(dbMonggo)
+		gcs           = googleCloud.NewGoogleCloudStorage(mongodb)
 	)
 	app := context.WithValue(ctx, connection.ConnectionInit,
 		connection.Connection{
-			Mongo: dbMonggo,
+			Mongo: mongodb,
 			GCS:   gcs,
 			Redis: memory.New(redisDatabase),
 		})
 	collection := context.WithValue(ctx, connection.CollectionInit,
 		connection.Collection{
-			Users:     users.NewRepo(dbMonggo),
-			Tokens:    tokens.NewRepo(dbMonggo),
-			PostTopic: postTopic.NewRepo(dbMonggo),
-			PostReply: postReply.NewRepo(dbMonggo),
+			Users:     users.NewRepo(mongodb),
+			Tokens:    tokens.NewRepo(mongodb),
+			PostTopic: postTopic.NewRepo(mongodb),
+			PostReply: postReply.NewRepo(mongodb),
 		})
 	options := &router.Options{
 		App:        app,
@@ -102,7 +102,7 @@ func initEcho() *echo.Echo {
 	return e
 }
 
-func newMongoDB() (*mongo.Database, context.Context) {
+func newMongoDB() (*mongo.Database, *context.Context) {
 	//EnvMongoURI := os.Getenv("MONGOURI")
 	//viper.SetDefault("MONGO.HOST", "mongodb+srv://admin:1234@cluster0.6phd9zm.mongodb.net/?retryWrites=true&w=majority")
 	EnvMongoURI := viper.GetString("MONGO.HOST")
@@ -125,33 +125,11 @@ func newMongoDB() (*mongo.Database, context.Context) {
 		log.Fatal(err)
 	}
 	log.Println("Connected to MongoDB")
-	return client.Database("konlakrod"), contextDatabase
+	return client.Database("konlakrod"), &contextDatabase
 }
 
 func newRedisPool() *redis.Client {
 
-	// var pass *string = nil
-	// mempass := viper.GetString("redis.pass")
-	// if mempass != "" {
-	// 	pass = &mempass
-	// }
-
-	// conf := redis.Config{
-	// 	Addr:            viper.GetString("REDIS.HOST") + ":" + viper.GetString("REDIS.PORT"),
-	// 	MaxIdle:         viper.GetInt("REDIS.MAXIDLE"),
-	// 	MaxActive:       viper.GetInt("REDIS.MAXACTIVE"),
-	// 	IdleTimeout:     viper.GetDuration("REDIS.IDLETIMEOUT"),
-	// 	MaxConnLifetime: viper.GetDuration("REDIS.MAXLIFETIME"),
-	// 	Password:        pass,
-	// }
-	// logx.GetLog().Infof("[CONFIG] redis connection: %+v", conf)
-
-	// pool, err := redis.Open(conf)
-	// if err != nil {
-	// 	logx.GetLog().Fatalf("cannot open redis connection: %s", err)
-	// }
-
-	// return pool
 	host := utils.Getenv("REDIS_URI", "localhost")
 	log.Println("HOST::::::::::", host)
 	val := fmt.Sprintf("%s:%s", host, "6379")
@@ -162,10 +140,6 @@ func newRedisPool() *redis.Client {
 		DB:       0,  // use default DB
 	})
 
-	// if err := rdb.Ping(ctx); err != nil {
-	// 	log.Fatal("redis:",err)
-
-	// }
 	pong, err := rdb.Ping(ctx).Result()
 	if err != nil {
 		log.Fatal("redis error:", err)

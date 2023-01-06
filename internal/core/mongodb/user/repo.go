@@ -70,7 +70,7 @@ func (r *Repo) FindAllUsers(f *GetAllUsersForm) (*mongodb.Page, error) {
 	// 	})
 	// }
 	usersResponse := []*UsersResponse{}
-	response, err := r.Aggregate(pipeline, &usersResponse, &f.PageQuery)
+	response, err := r.AggregateAndPageInformation(pipeline, &usersResponse, &f.PageQuery)
 	if err != nil {
 		return nil, err
 	}

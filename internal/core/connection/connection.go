@@ -11,10 +11,10 @@ import (
 	googleCloud "github.com/khotchapan/KonLakRod-api/internal/lagacy/google/google_cloud"
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
+type contextKey string
 const (
-	ConnectionInit = "S29uTGFrUm9kLWFwaS1jb25uZWN0"
-	CollectionInit = "S29uTGFrUm9kLWNvbm5lY3QtY29sbGVjdGlvbg=="
+	ConnectionInit contextKey = contextKey("S29uTGFrUm9kLWFwaS1jb25uZWN0")
+	CollectionInit contextKey = contextKey("S29uTGFrUm9kLWNvbm5lY3QtY29sbGVjdGlvbg==")
 )
 
 type Connection struct {
@@ -29,7 +29,7 @@ type Collection struct {
 	PostReply postReply.RepoInterface
 }
 
-func GetConnect(ctx context.Context, k string) *Connection {
+func GetConnect(ctx context.Context, k contextKey) *Connection {
 
 	if v, ok := ctx.Value(k).(Connection); ok {
 		//log.Println("GetConnect:",v)
@@ -39,7 +39,7 @@ func GetConnect(ctx context.Context, k string) *Connection {
 	return nil
 }
 
-func GetCollection(ctx context.Context, k string) *Collection {
+func GetCollection(ctx context.Context, k contextKey) *Collection {
 	if v, ok := ctx.Value(k).(Collection); ok {
 		//log.Println("GetCollection:",v)
 		return &v

@@ -2,6 +2,7 @@ package post_topic
 
 import (
 	"github.com/khotchapan/KonLakRod-api/internal/core/mongodb"
+	"github.com/khotchapan/KonLakRod-api/internal/entities"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -17,6 +18,7 @@ type RepoInterface interface {
 	FindOneByObjectID(oid *primitive.ObjectID, i interface{}) error
 	FindOneByID(id string, i interface{}) error
 	FindAllPostTopic(f *GetAllPostTopicForm) (*mongodb.Page, error)
+	FindAllPostTopicTest(f *GetAllPostTopicForm) ([]*entities.PostTopic, error)
 }
 
 type Repo struct {
@@ -54,9 +56,38 @@ func (r *Repo) FindAllPostTopic(f *GetAllPostTopicForm) (*mongodb.Page, error) {
 		// }},
 	}
 	postTopicResponse := []*PostTopicResponse{}
-	response, err := r.Aggregate(pipeline, &postTopicResponse, &f.PageQuery)
+	response, err := r.AggregateAndPageInformation(pipeline, &postTopicResponse, &f.PageQuery)
 	if err != nil {
 		return nil, err
 	}
 	return response, err
+}
+
+func (r *Repo) FindAllPostTopicTest(f *GetAllPostTopicForm) ([]*entities.PostTopic, error) {
+	var filterElements primitive.D
+	filterElements = append(filterElements, primitive.E{})
+	filterElements = append(filterElements, primitive.E{
+		Key: "deleted_at", Value: primitive.M{
+			"$exists": false,
+		},
+	})
+	//if f.Name != nil {
+	//filterElements = append(filterElements, primitive.E{Key: "$or", Value: primitive.A{primitive.M{"detail.name": primitive.Regex{Pattern: *f.Query, Options: "ig"}}}})
+	//}
+	pipeline := []primitive.M{
+		{"$match": filterElements},
+		// {"$lookup": primitive.M{
+		// 	"from":         "drug_categories",
+		// 	"localField":   "category",
+		// 	"foreignField": "_id",
+		// 	"as":           "drug_category_docs",
+		// }},
+	}
+	//postTopicResponse := []*PostTopicResponse{}
+	postTopicResponse := []*entities.PostTopic{}
+	err := r.Aggregate(pipeline, &postTopicResponse, &f.PageQuery)
+	if err != nil {
+		return nil, err
+	}
+	return postTopicResponse, err
 }

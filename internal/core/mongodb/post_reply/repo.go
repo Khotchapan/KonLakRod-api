@@ -70,7 +70,7 @@ func (r *Repo) FindAllPostReply(f *GetAllPostReplayForm) (*mongodb.Page, error) 
 	// 	})
 	// }
 	postReplyResponse := []*PostReplyResponse{}
-	response, err := r.Aggregate(pipeline, &postReplyResponse, &f.PageQuery)
+	response, err := r.AggregateAndPageInformation(pipeline, &postReplyResponse, &f.PageQuery)
 	if err != nil {
 		return nil, err
 	}

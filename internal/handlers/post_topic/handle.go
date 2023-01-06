@@ -88,3 +88,18 @@ func (h *Handler) GetAllPostTopic(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, response)
 }
+
+func (h *Handler) GetAllPostTopicTest(c echo.Context) error {
+	request := &postTopic.GetAllPostTopicForm{}
+	cc := c.(*middleware.CustomContext)
+	if err := cc.BindAndValidate(request); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	// uid := c.Request().Header.Get("UserID")
+	// log.Println("uid:",uid)
+	response, err := h.service.FindAllPostTopicTest(c, request)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, response)
+}

@@ -83,6 +83,7 @@ func Router(options *Options) {
 	postTopicGroup := api.Group("/post-topic")
 	postTopicGroup.GET("/:id", postTopicEndpoint.GetOnePostTopic)
 	postTopicGroup.GET("", postTopicEndpoint.GetAllPostTopic)
+	postTopicGroup.GET("/test", postTopicEndpoint.GetAllPostTopicTest)
 	postTopicGroup.POST("", postTopicEndpoint.CreatePostTopic)
 	postTopicGroup.PUT("", postTopicEndpoint.UpdatePostTopic)
 	postTopicGroup.DELETE("", postTopicEndpoint.DeletePostTopic)
@@ -107,7 +108,7 @@ func Router(options *Options) {
 	testGroup.POST("/google-cloud/image/upload", testEndpoint.UploadImage)
 }
 func Version(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{"version": 4})
+	return c.JSON(http.StatusOK, map[string]interface{}{"version": 4.1})
 }
 func HelloWorld(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World! KonLakRod&")

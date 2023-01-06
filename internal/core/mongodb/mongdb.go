@@ -238,8 +238,25 @@ func (r *Repo) BindModels(ctx context.Context, cur *mongo.Cursor, result interfa
 	resultv.Elem().Set(slicev.Slice(0, i))
 	return nil
 }
+func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQuery) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQuery) (*Page, error) {
+	cursor, err := r.Collection.Aggregate(
+		ctx,
+		pipeline,
+	)
+	if err != nil {
+		return err
+	}
+	if err = cursor.All(ctx, i); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repo) AggregateAndPageInformation(pipeline []primitive.M, i interface{}, form ...*PageQuery) (*Page, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var size int64
@@ -321,12 +338,11 @@ func (r *Repo) Aggregate(pipeline []primitive.M, i interface{}, form ...*PageQue
 			p.PageInformation.TotalNumberOfEntities = count
 			p.PageInformation.TotalNumberOfPages = int64(math.Ceil(float64(count) / float64(size)))
 			p.Entities = i
-			return &p, nil
 		}
-
+	} else {
+		emptyArray := make([]interface{}, 0)
+		p.Entities = emptyArray
 	}
-	emptyArray := make([]interface{}, 0)
-	p.Entities = emptyArray
 	return &p, nil
 }
 
