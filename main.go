@@ -6,7 +6,6 @@ import (
 	"log"
 	"strings"
 	"time"
-
 	"github.com/go-playground/validator"
 	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
@@ -58,7 +57,7 @@ func main() {
 	var (
 		e             = initEcho()
 		mongodb, _    = newMongoDB()
-		redisDatabase = newRedisPool()
+		redisDatabase = newRedis()
 		gcs           = googleCloud.NewGoogleCloudStorage(mongodb)
 	)
 	app := context.WithValue(ctx, connection.ConnectionInit,
@@ -128,8 +127,7 @@ func newMongoDB() (*mongo.Database, *context.Context) {
 	return client.Database("konlakrod"), &contextDatabase
 }
 
-func newRedisPool() *redis.Client {
-
+func newRedis() *redis.Client {
 	host := utils.Getenv("REDIS_URI", "localhost")
 	log.Println("HOST::::::::::", host)
 	val := fmt.Sprintf("%s:%s", host, "6379")
