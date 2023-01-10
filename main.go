@@ -27,7 +27,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var ctx context.Context = context.Background()
+//var ctx context.Context = context.Background()
 
 func initViper() {
 
@@ -60,13 +60,13 @@ func main() {
 		redisDatabase = newRedis()
 		gcs           = googleCloud.NewGoogleCloudStorage(mongodb)
 	)
-	app := context.WithValue(ctx, connection.ConnectionInit,
+	app := context.WithValue(context.Background(), connection.ConnectionInit,
 		connection.Connection{
 			Mongo: mongodb,
 			GCS:   gcs,
 			Redis: memory.New(redisDatabase),
 		})
-	collection := context.WithValue(ctx, connection.CollectionInit,
+	collection := context.WithValue(context.Background(), connection.CollectionInit,
 		connection.Collection{
 			Users:     users.NewRepo(mongodb),
 			Tokens:    tokens.NewRepo(mongodb),
@@ -138,7 +138,7 @@ func newRedis() *redis.Client {
 		DB:       0,  // use default DB
 	})
 
-	pong, err := rdb.Ping(ctx).Result()
+	pong, err := rdb.Ping(context.Background()).Result()
 	if err != nil {
 		log.Fatal("redis error:", err)
 	}
