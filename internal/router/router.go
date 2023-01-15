@@ -45,9 +45,6 @@ func Router(options *Options) {
 	e.GET(path.Join("/"), Version)
 	api := e.Group("/v1/api")
 	api.GET("", HelloWorld)
-
-	// Unauthenticated route
-	api.GET("/", accessible)
 	// Restricted group
 	r := api.Group("/restricted", checkSessionMiddleware, requiredAdmin)
 	{
@@ -111,11 +108,9 @@ func Version(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"version": 4.1})
 }
 func HelloWorld(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World! KonLakRod&")
-}
-
-func accessible(c echo.Context) error {
-	return c.String(http.StatusOK, "Accessible")
+	lang :=c.Request().Header.Get("Accept-Language")
+	text := fmt.Sprintf("%s : %v \n", "Hello, World! KonLakRod&",lang)
+	return c.String(http.StatusOK,text )
 }
 
 func restricted(c echo.Context) error {
